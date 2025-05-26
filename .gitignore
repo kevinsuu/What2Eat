@@ -101,6 +101,10 @@ backend/logs/
 backend/tmp/
 backend/temp/
 
+# 計數器數據檔案
+backend/data/
+backend/cmd/data/
+
 # ===========================================
 # 🌍 通用檔案
 # ===========================================
@@ -177,7 +181,6 @@ Dockerfile.prod
 # Air (Go 熱重載工具)
 backend/.air.toml
 backend/tmp/
-
 # 測試資料
 test-data/
 mock-data/

@@ -9,9 +9,6 @@ import (
 type Config struct {
 	GoogleMapsAPIKey string
 	Port             string
-	RedisAddr        string
-	RedisPassword    string
-	RedisDB          int
 	DailyAPILimit    int
 }
 
@@ -24,9 +21,6 @@ func Load() *Config {
 	return &Config{
 		GoogleMapsAPIKey: apiKey,
 		Port:             getEnv("PORT", "8080"),
-		RedisAddr:        getEnv("REDIS_ADDR", "localhost:6379"),
-		RedisPassword:    getEnv("REDIS_PASSWORD", ""),
-		RedisDB:          getEnvInt("REDIS_DB", 0),
 		DailyAPILimit:    getEnvInt("DAILY_API_LIMIT", 500),
 	}
 }
