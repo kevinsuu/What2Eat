@@ -1,10 +1,11 @@
-name: 部署到 GitHub Pages
+name: 部署前端到 GitHub Pages
 
 on:
   push:
-    paths:
-      - 'frontend/dist/**'  # 只有當 dist 目錄有變更時才觸發
     branches: [ main ]
+    paths:
+      - 'frontend/**'  # 當前端代碼有變更時觸發
+      - '!frontend/dist/**'  # 忽略 dist 目錄的變更
   workflow_dispatch:  # 允許手動觸發
 
 permissions:
@@ -18,12 +19,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: 檢出代碼
         uses: actions/checkout@v4
         
+      - name: 設置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: 安裝依賴
+        working-directory: frontend
+        run: npm ci
+      
+      - name: 構建前端
+        working-directory: frontend
+        run: npm run build
+      
       - name: 設置 GitHub Pages
         uses: actions/configure-pages@v4
       
