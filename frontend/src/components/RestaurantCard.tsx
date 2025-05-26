@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import {
-    Card,
     CardContent,
     CardMedia,
     Typography,
     Box,
-    Rating,
     Button,
-    Chip,
     Skeleton,
     Paper,
 } from '@mui/material';
-import { LocationOn, OpenInNew, NoPhotography, Restaurant, Star, AttachMoney } from '@mui/icons-material';
+import { LocationOn, OpenInNew, NoPhotography, Star, AttachMoney } from '@mui/icons-material';
 import type { Restaurant as RestaurantType } from '../types';
 
 interface RestaurantCardProps {
