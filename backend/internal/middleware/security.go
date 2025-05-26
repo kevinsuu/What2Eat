@@ -9,7 +9,7 @@ import (
 )
 
 // 全域速率限制器 - 每秒最多 10 個請求，突發 20 個
-var globalLimiter = rate.NewLimiter(rate.Limit(10), 20)
+var globalLimiter = rate.NewLimiter(rate.Limit(30), 50)
 
 // IP 速率限制器映射
 var ipLimiters = make(map[string]*rate.Limiter)
@@ -19,7 +19,7 @@ func getIPLimiter(ip string) *rate.Limiter {
 	limiter, exists := ipLimiters[ip]
 	if !exists {
 		// 每個 IP 每秒最多 3 個請求，突發 5 個
-		limiter = rate.NewLimiter(rate.Limit(3), 5)
+		limiter = rate.NewLimiter(rate.Limit(10), 15)
 		ipLimiters[ip] = limiter
 	}
 	return limiter
@@ -130,14 +130,14 @@ func TimeoutMiddleware(timeout time.Duration) gin.HandlerFunc {
 // API 專用流量限制 (更嚴格)
 func APIRateLimit() gin.HandlerFunc {
 	// API 專用限制器 - 每分鐘最多 30 個請求
-	apiLimiter := rate.NewLimiter(rate.Every(2*time.Second), 1)
+	apiLimiter := rate.NewLimiter(rate.Every(500*time.Millisecond), 5)
 
 	return func(c *gin.Context) {
 		if !apiLimiter.Allow() {
 			c.JSON(http.StatusTooManyRequests, gin.H{
 				"error":   "API 請求過於頻繁",
 				"code":    "API_RATE_LIMIT_EXCEEDED",
-				"message": "每 2 秒最多 1 個 API 請求",
+				"message": "每 500 毫秒最多 5 個 API 請求",
 			})
 			c.Abort()
 			return
