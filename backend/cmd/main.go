@@ -54,7 +54,14 @@ func main() {
 
 	// CORS 設定
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:5173", "http://localhost:3000", "https://kevinsuu.github.io/what2eat"}
+	config.AllowOrigins = []string{
+		"http://localhost:5173",
+		"http://localhost:3000",
+		"https://kevinsuu.github.io",
+		"https://kevinsuu.github.io/what2eat",
+		"http://127.0.0.1:5173",
+		"http://127.0.0.1:5500",
+	}
 	config.AllowMethods = []string{"GET", "POST", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept"}
 	r.Use(cors.New(config))

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "VITE_API_URL=https://what2eat-orfc.onrender.com tsc -b && vite build",
+    "build:gh-pages": "VITE_API_URL=https://what2eat-orfc.onrender.com tsc -b && vite build --base=/What2Eat/",
     "lint": "eslint .",
     "preview": "vite preview"
   },
