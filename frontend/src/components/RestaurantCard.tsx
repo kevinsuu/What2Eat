@@ -23,7 +23,8 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
 
     const handleOpenInMaps = () => {
-        const url = `https://www.google.com/maps/place/?q=place_id:${restaurant.place_id}`;
+        // 修正 Google Maps URL 格式，使用官方建議的 URL 格式
+        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name)}&query_place_id=${restaurant.place_id}`;
         window.open(url, '_blank');
     };
 
