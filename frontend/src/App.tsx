@@ -22,6 +22,7 @@ import { LocationOn, Restaurant, LocalCafe, Favorite, RestaurantMenu } from '@mu
 import RestaurantCard from './components/RestaurantCard';
 import { getRecommendations } from './services/api';
 import type { Restaurant as RestaurantType } from './types';
+import logo from '../public/image.png';
 
 const theme = createTheme({
   palette: {
@@ -463,7 +464,7 @@ function App() {
                 </Typography>
                 <Box
                   component="img"
-                  src="/image.png"
+                  src={logo}
                   alt="SMK Logo"
                   sx={{
                     height: 40,
@@ -536,7 +537,7 @@ function App() {
         <DialogContent sx={{ pt: 3 }}>
           <Box
             component="img"
-            src="/image.png"
+            src={logo}
             alt="SMK Logo"
             sx={{
               width: 80,
