@@ -13,7 +13,7 @@ const api = axios.create({
 
 export const getRecommendations = async (lat: number, lng: number): Promise<RecommendResponse> => {
     try {
-        const response = await api.post<RecommendResponse>('/api/recommend/', {
+        const response = await api.post<RecommendResponse>('/api/recommend', {
             lat,
             lng,
         });
