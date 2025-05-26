@@ -111,11 +111,11 @@ function App() {
         className={restaurants.length > 0 ? 'has-restaurants' : ''}
         sx={{
           width: '100%',
-          height: '100%',
-          py: { xs: 4, md: 2 }, // 減少電腦版的上下邊距
+          minHeight: '100vh', // 使用最小高度
+          py: { xs: 3, md: 2 }, // 調整上下邊距
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center', // 垂直置中
+          justifyContent: restaurants.length > 0 ? 'flex-start' : 'center', // 有餐廳時從頂部開始
         }}
       >
         <Container
@@ -125,7 +125,7 @@ function App() {
             px: { xs: 2, sm: 3 },
           }}
         >
-          <Box textAlign="center" mb={{ xs: 4, md: 2 }}>
+          <Box textAlign="center" mb={{ xs: 3, md: 2 }}>
             <Box
               sx={{
                 mb: { xs: 2, md: 1 },
@@ -140,7 +140,8 @@ function App() {
                 component="h1"
                 color="primary"
                 sx={{
-                  fontSize: { xs: '2.5rem', md: '2rem' }
+                  fontSize: { xs: '2.2rem', md: '2rem' }, // 調整手機版標題大小
+                  mb: { xs: 1, md: 0.5 } // 減少下方間距
                 }}
               >
                 What2Eat
@@ -151,7 +152,8 @@ function App() {
               color="text.secondary"
               mb={2}
               sx={{
-                fontSize: { xs: '1rem', md: '0.95rem' }
+                fontSize: { xs: '0.95rem', md: '0.95rem' },
+                px: { xs: 2, md: 0 } // 手機版添加左右邊距
               }}
             >
               不知道要吃什麼？讓我們為你推薦附近的優質餐廳！
@@ -164,10 +166,12 @@ function App() {
               disabled={loading}
               startIcon={loading ? <CircularProgress size={20} /> : <Restaurant />}
               sx={{
-                py: 1.5,
-                px: 4,
-                fontSize: '1.1rem',
+                py: { xs: 1.2, md: 1.5 },
+                px: { xs: 3, md: 4 },
+                fontSize: { xs: '1rem', md: '1.1rem' },
                 borderRadius: 3,
+                width: { xs: '100%', sm: 'auto' }, // 手機版全寬按鈕
+                maxWidth: { xs: '100%', sm: '300px' } // 限制最大寬度
               }}
             >
               {loading ? '搜尋中...' : '推薦餐廳'}
@@ -184,7 +188,7 @@ function App() {
           </Box>
 
           {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
+            <Alert severity="error" sx={{ mb: 3, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
               {error}
             </Alert>
           )}
@@ -199,16 +203,15 @@ function App() {
                   display: 'flex',
                   flexWrap: 'wrap',
                   justifyContent: 'center',
-                  gap: 3,
+                  gap: { xs: 2, md: 3 }, // 調整間距
                   '& > *': {
                     width: {
-                      xs: '100%',
-                      sm: 'calc(50% - 16px)',
-                      md: 'calc(33.333% - 16px)',
+                      xs: '100%', // 手機版全寬
+                      sm: 'calc(50% - 16px)', // 平板每行兩個
+                      md: 'calc(33.333% - 16px)', // 桌面每行三個
                     },
-                    maxWidth: '320px',
-                    minWidth: '280px',
-                    flex: '1 1 280px',
+                    maxWidth: { xs: '100%', sm: '320px', md: '320px' }, // 限制最大寬度
+                    minWidth: { xs: 'unset', sm: '280px', md: '280px' }, // 取消手機版最小寬度
                   }
                 }}
               >

@@ -50,8 +50,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
-  /* 強制使用視窗高度 */
+  min-height: 100vh;
+  /* 改用最小高度，避免在手機上內容被截斷 */
   width: 100%;
   overflow: auto;
   /* 必要時才顯示滾動條 */
@@ -103,11 +103,77 @@ button:focus-visible {
   max-width: 800px !important;
   /* 手動覆蓋 MUI 的寬度設定 */
   width: 100% !important;
+  padding: 0 16px !important;
+  /* 確保在手機上有合適的邊距 */
 }
 
 /* 當有餐廳卡片時，增加容器寬度 */
 .has-restaurants .MuiContainer-root {
   max-width: 1200px !important;
+}
+
+/* 手機版卡片設置 */
+@media (max-width: 599px) {
+
+  /* 調整卡片在手機上的顯示 */
+  .MuiCard-root {
+    margin-bottom: 16px;
+    width: 100% !important;
+  }
+
+  /* 手機版減少內容間距 */
+  .MuiCardContent-root {
+    padding: 12px !important;
+  }
+
+  /* 調整卡片圖片高度 */
+  .MuiCardMedia-root {
+    height: 180px !important;
+  }
+
+  /* 調整按鈕大小，使其在手機上更易點擊 */
+  .MuiButton-root {
+    padding: 8px 16px !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* 確保餐廳名稱在手機上完整顯示 */
+  h3.MuiTypography-root {
+    font-size: 1.2rem !important;
+    margin-bottom: 8px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+  }
+
+  /* 調整手機版卡片間距 */
+  .has-restaurants .MuiBox-root {
+    gap: 16px !important;
+  }
+
+  /* 調整餐廳地址在手機上的顯示行數 */
+  .MuiTypography-body2 {
+    -webkit-line-clamp: 2 !important;
+  }
+}
+
+/* 平板版卡片設置 */
+@media (min-width: 600px) and (max-width: 899px) {
+  .MuiCardMedia-root {
+    height: 180px !important;
+  }
+
+  .MuiContainer-root {
+    padding: 0 24px !important;
+  }
+
+  /* 確保在平板上每行最多顯示2張卡片 */
+  .has-restaurants .MuiBox-root>* {
+    flex: 0 0 calc(50% - 16px) !important;
+    max-width: calc(50% - 16px) !important;
+  }
 }
 
 /* 電腦版卡片緊湊設定 */
@@ -134,4 +200,29 @@ button:focus-visible {
   .has-restaurants .MuiBox-root {
     gap: 16px !important;
   }
+}
+
+/* 固定頁面高度，避免抖動 */
+html,
+body {
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+  /* 提升iOS滾動體驗 */
+}
+
+/* 增加卡片點擊區域的可訪問性 */
+.MuiCard-root {
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 確保按鈕在手機上有足夠的點擊區域 */
+.MuiButton-root {
+  min-height: 44px;
+  /* iOS建議的最小點擊區域高度 */
+}
+
+/* 優化加載時的過渡效果 */
+.MuiSkeleton-root {
+  border-radius: 4px 4px 0 0;
 }
