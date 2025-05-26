@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
+	"time"
 	"what2eat-backend/internal/config"
 	"what2eat-backend/internal/handler"
 	"what2eat-backend/internal/infrastructure"
+	"what2eat-backend/internal/middleware"
 	"what2eat-backend/internal/repository"
 	"what2eat-backend/internal/service"
 
@@ -31,8 +33,11 @@ func main() {
 	// 初始化 Repository
 	restaurantRepo := repository.NewRestaurantRepository(mapsClient)
 
+	// 初始化計數器服務
+	counterService := service.NewCounterService(cfg.DailyAPILimit)
+
 	// 初始化 Service
-	restaurantService := service.NewRestaurantService(restaurantRepo)
+	restaurantService := service.NewRestaurantService(restaurantRepo, counterService)
 
 	// 初始化 Handler
 	restaurantHandler := handler.NewRestaurantHandler(restaurantService)
@@ -40,9 +45,16 @@ func main() {
 	// 設定 Gin 路由
 	r := gin.Default()
 
+	// 安全中間件 (按順序套用)
+	r.Use(middleware.SecurityHeaders())                   // 安全標頭
+	r.Use(middleware.RequestSizeLimit(1024 * 1024))       // 1MB 請求大小限制
+	r.Use(middleware.TimeoutMiddleware(30 * time.Second)) // 30 秒超時
+	r.Use(middleware.GlobalRateLimit())                   // 全域流量限制
+	r.Use(middleware.IPRateLimit())                       // IP 流量限制
+
 	// CORS 設定
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:5173", "http://localhost:3000"}
+	config.AllowOrigins = []string{"http://localhost:5173", "http://localhost:3000", "https://kevinsuu.github.io/what2eat"}
 	config.AllowMethods = []string{"GET", "POST", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept"}
 	r.Use(cors.New(config))
@@ -62,6 +74,8 @@ func registerRoutes(r *gin.Engine, restaurantHandler *handler.RestaurantHandler)
 
 	api := r.Group("/api")
 	{
+		// API 專用流量限制 (更嚴格)
+		api.Use(middleware.APIRateLimit())
 		api.POST("/recommend", restaurantHandler.RecommendRestaurants)
 	}
 }

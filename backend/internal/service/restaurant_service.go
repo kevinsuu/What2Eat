@@ -8,20 +8,32 @@ import (
 )
 
 type RestaurantService struct {
-	repo RestaurantRepositoryInterface
+	repo    RestaurantRepositoryInterface
+	counter *CounterService
 }
 
 type RestaurantRepositoryInterface interface {
 	SearchNearby(lat, lng float64) ([]model.Restaurant, error)
 }
 
-func NewRestaurantService(repo RestaurantRepositoryInterface) *RestaurantService {
+func NewRestaurantService(repo RestaurantRepositoryInterface, counter *CounterService) *RestaurantService {
 	return &RestaurantService{
-		repo: repo,
+		repo:    repo,
+		counter: counter,
 	}
 }
 
 func (s *RestaurantService) GetRecommendations(lat, lng float64) (*model.RecommendResponse, error) {
+	// 檢查並增加計數
+	current, limit, err := s.counter.IncrementAndGetUsage()
+	if err != nil {
+		return &model.RecommendResponse{
+			Restaurants: []model.Restaurant{},
+			Message:     err.Error(),
+		}, nil
+	}
+
+	// 搜尋餐廳
 	restaurants, err := s.repo.SearchNearby(lat, lng)
 	if err != nil {
 		return nil, err
@@ -30,7 +42,7 @@ func (s *RestaurantService) GetRecommendations(lat, lng float64) (*model.Recomme
 	if len(restaurants) == 0 {
 		return &model.RecommendResponse{
 			Restaurants: []model.Restaurant{},
-			Message:     "附近沒有找到合適的餐廳",
+			Message:     fmt.Sprintf("附近沒有找到合適的餐廳 (今日使用量: %d/%d)", current, limit),
 		}, nil
 	}
 
@@ -38,7 +50,7 @@ func (s *RestaurantService) GetRecommendations(lat, lng float64) (*model.Recomme
 
 	return &model.RecommendResponse{
 		Restaurants: selectedRestaurants,
-		Message:     fmt.Sprintf("為您推薦 %d 家附近的優質餐廳", len(selectedRestaurants)),
+		Message:     fmt.Sprintf("為您推薦 %d 家附近的優質餐廳 (今日使用量: %d/%d)", len(selectedRestaurants), current, limit),
 	}, nil
 }
 
