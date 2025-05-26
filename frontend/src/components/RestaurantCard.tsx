@@ -9,15 +9,17 @@ import {
     Button,
     Chip,
     Skeleton,
+    Paper,
 } from '@mui/material';
-import { LocationOn, OpenInNew, NoPhotography } from '@mui/icons-material';
-import type { Restaurant } from '../types';
+import { LocationOn, OpenInNew, NoPhotography, Restaurant, Star } from '@mui/icons-material';
+import type { Restaurant as RestaurantType } from '../types';
 
 interface RestaurantCardProps {
-    restaurant: Restaurant;
+    restaurant: RestaurantType;
 }
 
-const CARD_IMAGE_HEIGHT = 180; // 統一定義圖片高度
+// 縮小圖片高度，讓卡片更緊湊
+const CARD_IMAGE_HEIGHT = 140;
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
     const [imageError, setImageError] = useState(false);
@@ -33,10 +35,10 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
         if (!url) return '';
         // 如果已經有參數，添加更多參數
         if (url.includes('?')) {
-            return `${url}&maxwidth=300&maxheight=${CARD_IMAGE_HEIGHT}`;
+            return `${url}&maxwidth=400&maxheight=${CARD_IMAGE_HEIGHT}`;
         }
         // 否則添加第一個參數
-        return `${url}?maxwidth=300&maxheight=${CARD_IMAGE_HEIGHT}`;
+        return `${url}?maxwidth=400&maxheight=${CARD_IMAGE_HEIGHT}`;
     };
 
     const handleImageError = () => {
@@ -48,17 +50,22 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
     };
 
     return (
-        <Card
+        <Paper
+            elevation={0}
             sx={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                borderRadius: 3,
+                overflow: 'hidden',
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4,
+                    transform: 'translateY(-8px)',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
                 },
-                overflow: 'hidden', // 確保內容不會溢出
+                background: 'white',
+                border: '1px solid rgba(0,0,0,0.05)',
+                maxHeight: '400px', // 限制最大高度，適應單屏顯示
             }}
         >
             <Box sx={{
@@ -94,6 +101,12 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                                 display: imageLoaded ? 'block' : 'none',
                                 width: '100%',
                                 height: '100%',
+                                transition: 'transform 0.5s ease',
+                                filter: 'brightness(0.95)',
+                                '&:hover': {
+                                    transform: 'scale(1.05)',
+                                    filter: 'brightness(1)',
+                                },
                             }}
                             onError={handleImageError}
                             onLoad={handleImageLoaded}
@@ -108,77 +121,127 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             flexDirection: 'column',
+                            background: 'linear-gradient(45deg, #f5f5f5 0%, #eeeeee 100%)',
                         }}
                     >
-                        <NoPhotography sx={{ fontSize: 40, opacity: 0.7, mb: 1 }} />
+                        <NoPhotography sx={{ fontSize: 32, opacity: 0.7, mb: 0.5, color: '#bdbdbd' }} />
                         <Typography variant="body2" color="text.secondary" align="center">
                             暫無圖片
                         </Typography>
                     </Box>
                 )}
+
+                {/* 評分徽章 */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        bgcolor: 'rgba(255, 107, 53, 0.95)',
+                        borderRadius: '12px',
+                        py: 0.3,
+                        px: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    }}
+                >
+                    <Star sx={{ color: 'white', fontSize: '0.8rem', mr: 0.3 }} />
+                    <Typography variant="body2" fontWeight="bold" color="white" sx={{ fontSize: '0.8rem' }}>
+                        {restaurant.rating.toFixed(1)}
+                    </Typography>
+                </Box>
             </Box>
 
             <CardContent sx={{
                 flexGrow: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                py: { xs: 2, md: 1.5 }, // 減少卡片內容的上下邊距
+                py: { xs: 1.5, md: 1.5 },
                 px: { xs: 2, md: 2 },
             }}>
-                <Typography variant="h6" component="h3" gutterBottom noWrap>
+                <Typography
+                    variant="h6"
+                    component="h3"
+                    gutterBottom
+                    noWrap
+                    sx={{
+                        fontWeight: 600,
+                        mb: 1,
+                        fontSize: '1rem',
+                        color: '#333',
+                    }}
+                >
                     {restaurant.name}
                 </Typography>
 
-                <Box display="flex" alignItems="center" mb={1}>
-                    <Rating
-                        value={restaurant.rating}
-                        precision={0.1}
-                        readOnly
-                        size="small"
-                    />
-                    <Typography variant="body2" color="text.secondary" ml={1}>
-                        {restaurant.rating.toFixed(1)}
-                    </Typography>
-                </Box>
-
-                <Box display="flex" alignItems="center" mb={1}>
-                    <LocationOn fontSize="small" color="action" />
-                    <Typography variant="body2" color="text.secondary" ml={0.5}>
-                        {restaurant.distance}
-                    </Typography>
-                </Box>
-
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
+                <Box
+                    display="flex"
+                    alignItems="flex-start"
+                    mb={1}
                     sx={{
-                        flexGrow: 1,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: { xs: 2, md: 1 }, // 電腦版只顯示一行地址
-                        WebkitBoxOrient: 'vertical',
-                        fontSize: { xs: '0.875rem', md: '0.75rem' }, // 電腦版更小的字體
+                        background: 'rgba(0, 0, 0, 0.02)',
+                        borderRadius: 2,
+                        py: 0.8,
+                        px: 1.2,
                     }}
                 >
-                    {restaurant.address}
-                </Typography>
+                    <LocationOn
+                        fontSize="small"
+                        color="primary"
+                        sx={{ mr: 0.8, fontSize: '1rem', mt: 0.1 }}
+                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography
+                            variant="body2"
+                            color="text.primary"
+                            sx={{ fontWeight: 600, fontSize: '0.85rem', color: '#444' }}
+                        >
+                            距離 {restaurant.distance}
+                        </Typography>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                                fontSize: '0.75rem',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 1,
+                                WebkitBoxOrient: 'vertical',
+                                color: '#666',
+                            }}
+                        >
+                            {restaurant.address}
+                        </Typography>
+                    </Box>
+                </Box>
 
-                <Box mt={2}>
+                <Box mt="auto" pt={0.5}>
                     <Button
-                        variant="outlined"
+                        variant="contained"
                         fullWidth
                         onClick={handleOpenInMaps}
-                        startIcon={<OpenInNew />}
+                        startIcon={<OpenInNew sx={{ fontSize: '0.8rem' }} />}
                         sx={{
-                            borderRadius: 2,
+                            borderRadius: 6,
+                            py: 0.8,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.8rem',
+                            background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
+                            boxShadow: '0 4px 10px rgba(255, 107, 53, 0.2)',
+                            '&:hover': {
+                                background: 'linear-gradient(45deg, #e85a2a 30%, #ff6b35 90%)',
+                                boxShadow: '0 6px 15px rgba(255, 107, 53, 0.3)',
+                            }
                         }}
                     >
                         在 Google Maps 中查看
                     </Button>
                 </Box>
             </CardContent>
-        </Card>
+        </Paper>
     );
 };
 
