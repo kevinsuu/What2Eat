@@ -13,7 +13,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* SMK 品牌色彩 */
 .smk-logo {
   filter: brightness(0) invert(1);
   background: #1a1a1a;
