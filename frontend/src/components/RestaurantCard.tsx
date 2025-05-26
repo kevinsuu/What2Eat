@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Card,
     CardContent,
@@ -8,8 +8,9 @@ import {
     Rating,
     Button,
     Chip,
+    Skeleton,
 } from '@mui/material';
-import { LocationOn, OpenInNew } from '@mui/icons-material';
+import { LocationOn, OpenInNew, NoPhotography } from '@mui/icons-material';
 import type { Restaurant } from '../types';
 
 interface RestaurantCardProps {
@@ -17,9 +18,31 @@ interface RestaurantCardProps {
 }
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
+    const [imageError, setImageError] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
+
     const handleOpenInMaps = () => {
         const url = `https://www.google.com/maps/place/?q=place_id:${restaurant.place_id}`;
         window.open(url, '_blank');
+    };
+
+    // 修改圖片URL，添加較小的尺寸參數來減少流量
+    const getOptimizedImageUrl = (url: string) => {
+        if (!url) return '';
+        // 如果已經有參數，添加更多參數
+        if (url.includes('?')) {
+            return `${url}&maxwidth=300&maxheight=200`;
+        }
+        // 否則添加第一個參數
+        return `${url}?maxwidth=300&maxheight=200`;
+    };
+
+    const handleImageError = () => {
+        setImageError(true);
+    };
+
+    const handleImageLoaded = () => {
+        setImageLoaded(true);
     };
 
     return (
@@ -35,19 +58,55 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 },
             }}
         >
-            {restaurant.photo_url && (
-                <CardMedia
-                    component="img"
-                    height="200"
-                    image={restaurant.photo_url}
-                    alt={restaurant.name}
+            {restaurant.photo_url && !imageError ? (
+                <>
+                    {!imageLoaded && (
+                        <Skeleton
+                            variant="rectangular"
+                            height={200}
+                            animation="wave"
+                            sx={{ bgcolor: 'grey.200' }}
+                        />
+                    )}
+                    <CardMedia
+                        component="img"
+                        height="200"
+                        image={getOptimizedImageUrl(restaurant.photo_url)}
+                        alt={restaurant.name}
+                        sx={{
+                            objectFit: 'cover',
+                            display: imageLoaded ? 'block' : 'none'
+                        }}
+                        onError={handleImageError}
+                        onLoad={handleImageLoaded}
+                    />
+                </>
+            ) : (
+                <Box
                     sx={{
-                        objectFit: 'cover',
+                        height: 200,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: 'grey.100',
+                        color: 'text.secondary',
+                        flexDirection: 'column'
                     }}
-                />
+                >
+                    <NoPhotography sx={{ fontSize: 40, opacity: 0.7, mb: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                        暫無圖片
+                    </Typography>
+                </Box>
             )}
 
-            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{
+                flexGrow: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                py: { xs: 2, md: 1.5 }, // 減少卡片內容的上下邊距
+                px: { xs: 2, md: 2 },
+            }}>
                 <Typography variant="h6" component="h3" gutterBottom noWrap>
                     {restaurant.name}
                 </Typography>
@@ -79,8 +138,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         display: '-webkit-box',
-                        WebkitLineClamp: 2,
+                        WebkitLineClamp: { xs: 2, md: 1 }, // 電腦版只顯示一行地址
                         WebkitBoxOrient: 'vertical',
+                        fontSize: { xs: '0.875rem', md: '0.75rem' }, // 電腦版更小的字體
                     }}
                 >
                     {restaurant.address}

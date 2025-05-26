@@ -21,13 +21,17 @@ const theme = createTheme({
       main: '#ff6b35',
     },
     secondary: {
-      main: '#f7931e',
+      main: '#1a1a1a', // SMK 黑色
     },
+    background: {
+      default: '#f5f5f5',
+    }
   },
   typography: {
     h3: {
       fontWeight: 700,
     },
+    fontFamily: '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   },
 });
 
@@ -103,76 +107,137 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box textAlign="center" mb={4}>
-          <Typography variant="h3" component="h1" gutterBottom color="primary">
-            🥡 What2Eat
-          </Typography>
-          <Typography variant="h6" color="text.secondary" mb={3}>
-            不知道要吃什麼？讓我們為你推薦附近的優質餐廳！
-          </Typography>
+      <Box
+        className={restaurants.length > 0 ? 'has-restaurants' : ''}
+        sx={{
+          width: '100%',
+          height: '100%',
+          py: { xs: 4, md: 2 }, // 減少電腦版的上下邊距
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center', // 垂直置中
+        }}
+      >
+        <Container
+          maxWidth="lg"
+          sx={{
+            width: '100%',
+            px: { xs: 2, sm: 3 },
+          }}
+        >
+          <Box textAlign="center" mb={{ xs: 4, md: 2 }}>
+            <Box
+              sx={{
+                mb: { xs: 2, md: 1 },
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
+              }}
+            >
 
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handleRecommend}
-            disabled={loading}
-            startIcon={loading ? <CircularProgress size={20} /> : <Restaurant />}
-            sx={{
-              py: 1.5,
-              px: 4,
-              fontSize: '1.1rem',
-              borderRadius: 3,
-            }}
-          >
-            {loading ? '搜尋中...' : '推薦餐廳'}
-          </Button>
-
-          {location && (
-            <Box mt={2} display="flex" alignItems="center" justifyContent="center">
-              <LocationOn color="action" fontSize="small" />
-              <Typography variant="body2" color="text.secondary" ml={0.5}>
-                已定位到您的位置
+              <Typography
+                variant="h3"
+                component="h1"
+                color="primary"
+                sx={{
+                  fontSize: { xs: '2.5rem', md: '2rem' }
+                }}
+              >
+                What2Eat
               </Typography>
             </Box>
-          )}
-        </Box>
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
-
-        {restaurants.length > 0 && (
-          <Box>
-            <Typography variant="h5" gutterBottom textAlign="center" mb={3}>
-              為您推薦 {restaurants.length} 家餐廳
-            </Typography>
-            <Box
-              display="grid"
-              gridTemplateColumns={{
-                xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
+            <Typography
+              variant="h6"
+              color="text.secondary"
+              mb={2}
+              sx={{
+                fontSize: { xs: '1rem', md: '0.95rem' }
               }}
-              gap={3}
             >
-              {restaurants.map((restaurant, index) => (
-                <RestaurantCard key={restaurant.place_id || index} restaurant={restaurant} />
-              ))}
-            </Box>
-          </Box>
-        )}
-
-        {restaurants.length === 0 && !loading && !error && (
-          <Box textAlign="center" py={8}>
-            <Typography variant="h6" color="text.secondary">
-              點擊上方按鈕開始尋找美食！
+              不知道要吃什麼？讓我們為你推薦附近的優質餐廳！
             </Typography>
+
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handleRecommend}
+              disabled={loading}
+              startIcon={loading ? <CircularProgress size={20} /> : <Restaurant />}
+              sx={{
+                py: 1.5,
+                px: 4,
+                fontSize: '1.1rem',
+                borderRadius: 3,
+              }}
+            >
+              {loading ? '搜尋中...' : '推薦餐廳'}
+            </Button>
+
+            {location && (
+              <Box mt={2} display="flex" alignItems="center" justifyContent="center">
+                <LocationOn color="action" fontSize="small" />
+                <Typography variant="body2" color="text.secondary" ml={0.5}>
+                  已定位到您的位置
+                </Typography>
+              </Box>
+            )}
           </Box>
-        )}
-      </Container>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+
+          {restaurants.length > 0 && (
+            <Box>
+              <Typography variant="h5" gutterBottom textAlign="center" mb={{ xs: 3, md: 2 }}>
+                為您推薦 {restaurants.length} 家餐廳
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  gap: 3,
+                  '& > *': {
+                    width: {
+                      xs: '100%',
+                      sm: 'calc(50% - 16px)',
+                      md: 'calc(33.333% - 16px)',
+                    },
+                    maxWidth: '320px',
+                    minWidth: '280px',
+                    flex: '1 1 280px',
+                  }
+                }}
+              >
+                {restaurants.map((restaurant, index) => (
+                  <RestaurantCard key={restaurant.place_id || index} restaurant={restaurant} />
+                ))}
+              </Box>
+            </Box>
+          )}
+
+          {restaurants.length === 0 && !loading && !error && (
+            <Box textAlign="center" py={4}>
+              <Typography variant="h6" color="text.secondary" mb={2}>
+                點擊上方按鈕開始尋找美食！
+              </Typography>
+              <Box
+                component="img"
+                src="/image.png"
+                alt="SMK Logo"
+                sx={{
+                  height: 40,
+                  opacity: 0.7,
+                  filter: 'grayscale(100%)'
+                }}
+              />
+            </Box>
+          )}
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 }

@@ -13,21 +13,48 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* SMK 品牌色彩 */
+.smk-logo {
+  filter: brightness(0) invert(1);
+  background: #1a1a1a;
+  border-radius: 50%;
+  padding: 8px;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
 
-body {
+html,
+body,
+#root {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  /* 防止水平滾動 */
+}
+
+body {
   min-height: 100vh;
+  background-color: #f0f2f5;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  /* 強制使用視窗高度 */
+  width: 100%;
+  overflow: auto;
+  /* 必要時才顯示滾動條 */
 }
 
 h1 {
@@ -46,9 +73,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -59,10 +88,50 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
+  }
+}
+
+/* 限制最大寬度 */
+.MuiContainer-root {
+  max-width: 800px !important;
+  /* 手動覆蓋 MUI 的寬度設定 */
+  width: 100% !important;
+}
+
+/* 當有餐廳卡片時，增加容器寬度 */
+.has-restaurants .MuiContainer-root {
+  max-width: 1200px !important;
+}
+
+/* 電腦版卡片緊湊設定 */
+@media (min-width: 900px) {
+
+  /* 減少卡片大小，使所有內容可以在一屏內顯示 */
+  .MuiCard-root {
+    max-height: 400px;
+  }
+
+  /* 縮小圖片高度 */
+  .MuiCardMedia-root {
+    height: 160px !important;
+  }
+
+  /* 緊湊的標題 */
+  h3.MuiTypography-root {
+    margin-bottom: 6px !important;
+    font-size: 1.1rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* 縮小卡片之間的間距 */
+  .has-restaurants .MuiBox-root {
+    gap: 16px !important;
   }
 }
