@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -9,8 +9,14 @@ import {
   ThemeProvider,
   createTheme,
   CssBaseline,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
+  Link,
 } from '@mui/material';
-import { LocationOn, Restaurant } from '@mui/icons-material';
+import { LocationOn, Restaurant, LocalCafe, Favorite } from '@mui/icons-material';
 import RestaurantCard from './components/RestaurantCard';
 import { getRecommendations } from './services/api';
 import type { Restaurant as RestaurantType } from './types';
@@ -40,6 +46,61 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [clickCount, setClickCount] = useState(0);
+  const [showDonateDialog, setShowDonateDialog] = useState(false);
+
+  // 監聽點擊事件，達到5次顯示捐贈對話框
+  useEffect(() => {
+    const totalClickCount = parseInt(localStorage.getItem('totalClickCount') || '0');
+    const refuseCount = parseInt(localStorage.getItem('donateRefuseCount') || '0');
+
+    // 如果總點擊次數達到5次，或者拒絕後又點擊了10次
+    if ((totalClickCount >= 5 && refuseCount === 0) || (refuseCount > 0 && clickCount >= 10)) {
+      // 檢查localStorage，避免重複顯示
+      const lastShown = localStorage.getItem('lastDonateDialogShown');
+      const now = new Date().getTime();
+
+      // 如果從未顯示過或者已經過了1天
+      if (!lastShown || (now - parseInt(lastShown)) > 24 * 60 * 60 * 1000) {
+        setShowDonateDialog(true);
+        // 記錄顯示時間
+        localStorage.setItem('lastDonateDialogShown', now.toString());
+        // 重置點擊計數
+        setClickCount(0);
+        localStorage.setItem('totalClickCount', totalClickCount.toString());
+      }
+    }
+  }, [clickCount]);
+
+  // 全局點擊監聽
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      const newCount = clickCount + 1;
+      setClickCount(newCount);
+
+      // 更新總點擊次數
+      const totalClickCount = parseInt(localStorage.getItem('totalClickCount') || '0');
+      localStorage.setItem('totalClickCount', (totalClickCount + 1).toString());
+    };
+
+    document.addEventListener('click', handleGlobalClick);
+    return () => {
+      document.removeEventListener('click', handleGlobalClick);
+    };
+  }, [clickCount]);
+
+  const handleCloseDonateDialog = () => {
+    setShowDonateDialog(false);
+    // 增加拒絕計數
+    const refuseCount = parseInt(localStorage.getItem('donateRefuseCount') || '0');
+    localStorage.setItem('donateRefuseCount', (refuseCount + 1).toString());
+  };
+
+  const handleDonate = () => {
+    // 這裡可以導向到你的捐款頁面
+    window.open('https://www.buymeacoffee.com/yourname', '_blank');
+    setShowDonateDialog(false);
+  };
 
   const getCurrentLocation = (): Promise<{ lat: number; lng: number }> => {
     return new Promise((resolve, reject) => {
@@ -200,23 +261,27 @@ function App() {
               </Typography>
               <Box
                 sx={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                  gap: { xs: 2, md: 3 }, // 調整間距
-                  '& > *': {
-                    width: {
-                      xs: '100%', // 手機版全寬
-                      sm: 'calc(50% - 16px)', // 平板每行兩個
-                      md: 'calc(33.333% - 16px)', // 桌面每行三個
-                    },
-                    maxWidth: { xs: '100%', sm: '320px', md: '320px' }, // 限制最大寬度
-                    minWidth: { xs: 'unset', sm: '280px', md: '280px' }, // 取消手機版最小寬度
-                  }
+                  display: 'grid',
+                  gridTemplateColumns: {
+                    xs: '1fr',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)'
+                  },
+                  gap: { xs: 2, md: 3 },
+                  justifyItems: 'center',
+                  mx: 'auto'
                 }}
               >
                 {restaurants.map((restaurant, index) => (
-                  <RestaurantCard key={restaurant.place_id || index} restaurant={restaurant} />
+                  <Box
+                    key={restaurant.place_id || index}
+                    sx={{
+                      width: '100%',
+                      maxWidth: { xs: '100%', sm: '320px', md: '320px' }
+                    }}
+                  >
+                    <RestaurantCard restaurant={restaurant} />
+                  </Box>
                 ))}
               </Box>
             </Box>
@@ -241,6 +306,69 @@ function App() {
           )}
         </Container>
       </Box>
+
+      {/* 捐贈對話框 */}
+      <Dialog
+        open={showDonateDialog}
+        onClose={handleCloseDonateDialog}
+        aria-labelledby="donate-dialog-title"
+        aria-describedby="donate-dialog-description"
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            maxWidth: 400
+          }
+        }}
+      >
+        <DialogTitle id="donate-dialog-title" sx={{ textAlign: 'center', pt: 3 }}>
+          <Favorite color="error" sx={{ mr: 1, verticalAlign: 'middle' }} />
+          {parseInt(localStorage.getItem('donateRefuseCount') || '0') > 0
+            ? '我們很努力在做這個服務'
+            : '喜歡 What2Eat 嗎？'}
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            component="img"
+            src="/image.png"
+            alt="SMK Logo"
+            sx={{
+              width: 80,
+              height: 80,
+              display: 'block',
+              margin: '0 auto 16px',
+              borderRadius: '50%'
+            }}
+          />
+          <DialogContentText id="donate-dialog-description" sx={{ textAlign: 'center', mb: 2 }}>
+            {parseInt(localStorage.getItem('donateRefuseCount') || '0') > 0
+              ? '開發與維護這個應用真的很辛苦，確定不支持我一下嗎？您的小小支持是我們最大的動力！'
+              : '如果這個應用幫到了你，考慮請我喝杯咖啡支持開發嗎？'}
+            <Box component="span" display="block" mt={1}>
+              <LocalCafe color="primary" sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+              您的支持讓我們能夠持續改進與開發更好的功能！
+            </Box>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 3, px: 3 }}>
+          <Button
+            onClick={handleCloseDonateDialog}
+            color="inherit"
+            variant="outlined"
+            sx={{ width: '45%' }}
+          >
+            {parseInt(localStorage.getItem('donateRefuseCount') || '0') > 0 ? '下次再說' : '先不要'}
+          </Button>
+          <Button
+            onClick={handleDonate}
+            color="primary"
+            variant="contained"
+            startIcon={<LocalCafe />}
+            sx={{ width: '45%' }}
+          >
+            支持
+          </Button>
+        </DialogActions>
+      </Dialog>
     </ThemeProvider>
   );
 }

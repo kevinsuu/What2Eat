@@ -17,6 +17,8 @@ interface RestaurantCardProps {
     restaurant: Restaurant;
 }
 
+const CARD_IMAGE_HEIGHT = 180; // 統一定義圖片高度
+
 const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
     const [imageError, setImageError] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -31,10 +33,10 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
         if (!url) return '';
         // 如果已經有參數，添加更多參數
         if (url.includes('?')) {
-            return `${url}&maxwidth=300&maxheight=200`;
+            return `${url}&maxwidth=300&maxheight=${CARD_IMAGE_HEIGHT}`;
         }
         // 否則添加第一個參數
-        return `${url}?maxwidth=300&maxheight=200`;
+        return `${url}?maxwidth=300&maxheight=${CARD_IMAGE_HEIGHT}`;
     };
 
     const handleImageError = () => {
@@ -56,49 +58,65 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                     transform: 'translateY(-4px)',
                     boxShadow: 4,
                 },
+                overflow: 'hidden', // 確保內容不會溢出
             }}
         >
-            {restaurant.photo_url && !imageError ? (
-                <>
-                    {!imageLoaded && (
-                        <Skeleton
-                            variant="rectangular"
-                            height={200}
-                            animation="wave"
-                            sx={{ bgcolor: 'grey.200' }}
+            <Box sx={{
+                height: CARD_IMAGE_HEIGHT,
+                position: 'relative',
+                width: '100%',
+                overflow: 'hidden',
+                backgroundColor: 'grey.100'
+            }}>
+                {restaurant.photo_url && !imageError ? (
+                    <>
+                        {!imageLoaded && (
+                            <Skeleton
+                                variant="rectangular"
+                                height={CARD_IMAGE_HEIGHT}
+                                width="100%"
+                                animation="wave"
+                                sx={{
+                                    bgcolor: 'grey.200',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0
+                                }}
+                            />
+                        )}
+                        <CardMedia
+                            component="img"
+                            height={CARD_IMAGE_HEIGHT}
+                            image={getOptimizedImageUrl(restaurant.photo_url)}
+                            alt={restaurant.name}
+                            sx={{
+                                objectFit: 'cover',
+                                display: imageLoaded ? 'block' : 'none',
+                                width: '100%',
+                                height: '100%',
+                            }}
+                            onError={handleImageError}
+                            onLoad={handleImageLoaded}
                         />
-                    )}
-                    <CardMedia
-                        component="img"
-                        height="200"
-                        image={getOptimizedImageUrl(restaurant.photo_url)}
-                        alt={restaurant.name}
+                    </>
+                ) : (
+                    <Box
                         sx={{
-                            objectFit: 'cover',
-                            display: imageLoaded ? 'block' : 'none'
+                            height: '100%',
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexDirection: 'column',
                         }}
-                        onError={handleImageError}
-                        onLoad={handleImageLoaded}
-                    />
-                </>
-            ) : (
-                <Box
-                    sx={{
-                        height: 200,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        bgcolor: 'grey.100',
-                        color: 'text.secondary',
-                        flexDirection: 'column'
-                    }}
-                >
-                    <NoPhotography sx={{ fontSize: 40, opacity: 0.7, mb: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
-                        暫無圖片
-                    </Typography>
-                </Box>
-            )}
+                    >
+                        <NoPhotography sx={{ fontSize: 40, opacity: 0.7, mb: 1 }} />
+                        <Typography variant="body2" color="text.secondary" align="center">
+                            暫無圖片
+                        </Typography>
+                    </Box>
+                )}
+            </Box>
 
             <CardContent sx={{
                 flexGrow: 1,

@@ -179,14 +179,10 @@ button:focus-visible {
 /* 電腦版卡片緊湊設定 */
 @media (min-width: 900px) {
 
-  /* 減少卡片大小，使所有內容可以在一屏內顯示 */
-  .MuiCard-root {
-    max-height: 400px;
-  }
-
   /* 縮小圖片高度 */
   .MuiCardMedia-root {
-    height: 160px !important;
+    height: 180px !important;
+    /* 與組件中定義的 CARD_IMAGE_HEIGHT 相同 */
   }
 
   /* 緊湊的標題 */
@@ -214,6 +210,8 @@ body {
 .MuiCard-root {
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  height: 100% !important;
+  /* 確保所有卡片高度一致 */
 }
 
 /* 確保按鈕在手機上有足夠的點擊區域 */
