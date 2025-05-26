@@ -2,9 +2,7 @@ name: 部署前端到 GitHub Pages
 
 on:
   push:
-    paths:
-      - 'frontend/dist/**'  # 只有當 dist 目錄有變更時才觸發
-    branches: [ main ]
+    branches: [ main ]  # 在每次 main 分支推送時觸發
   workflow_dispatch:  # 允許手動觸發
 
 permissions:
