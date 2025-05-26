@@ -25,7 +25,7 @@ frontend/pnpm-debug.log*
 frontend/lerna-debug.log*
 
 # 建構輸出
-frontend/dist/
+# frontend/dist/
 frontend/dist-ssr/
 frontend/build/
 frontend/.next/
