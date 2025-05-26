@@ -1,0 +1,191 @@
+# ===========================================
+# What2Eat 專案 .gitignore
+# ===========================================
+
+# 🔐 環境變數和敏感資料
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+*.pem
+config/secrets.json
+
+# ===========================================
+# 🚀 前端 (React + Vite + Node.js)
+# ===========================================
+
+# 依賴套件
+frontend/node_modules/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+
+# 建構輸出
+frontend/dist/
+frontend/dist-ssr/
+frontend/build/
+frontend/.next/
+frontend/out/
+
+# 快取和暫存檔案
+frontend/.vite/
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.nuxt/
+frontend/.output/
+frontend/.vercel/
+frontend/.netlify/
+
+# 編輯器和 IDE
+frontend/.vscode/
+frontend/.idea/
+frontend/*.swp
+frontend/*.swo
+frontend/*~
+
+# 作業系統檔案
+frontend/.DS_Store
+frontend/Thumbs.db
+
+# 測試覆蓋率
+frontend/coverage/
+frontend/.nyc_output/
+
+# ESLint 快取
+frontend/.eslintcache
+
+# ===========================================
+# 🐹 後端 (Golang)
+# ===========================================
+
+# 編譯後的二進位檔案
+backend/*.exe
+backend/*.exe~
+backend/*.dll
+backend/*.so
+backend/*.dylib
+backend/main
+backend/cmd/main
+backend/bin/
+backend/build/
+
+# 測試檔案
+backend/*.test
+backend/*.out
+backend/coverage.txt
+backend/coverage.html
+
+# Go 模組快取
+backend/go.sum.backup
+
+# 編輯器和 IDE
+backend/.vscode/
+backend/.idea/
+backend/*.swp
+backend/*.swo
+backend/*~
+
+# 作業系統檔案
+backend/.DS_Store
+backend/Thumbs.db
+
+# 日誌檔案
+backend/*.log
+backend/logs/
+
+# 暫存檔案
+backend/tmp/
+backend/temp/
+
+# ===========================================
+# 🌍 通用檔案
+# ===========================================
+
+# 作業系統檔案
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 編輯器和 IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# 日誌檔案
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 暫存檔案
+tmp/
+temp/
+.tmp/
+.temp/
+
+# 壓縮檔案
+*.zip
+*.tar.gz
+*.rar
+
+# ===========================================
+# 🚀 部署相關
+# ===========================================
+
+# Docker
+.dockerignore
+Dockerfile.prod
+
+# 部署設定
+.vercel/
+.netlify/
+.firebase/
+
+# CI/CD
+.github/workflows/secrets.yml
+
+# ===========================================
+# 📝 文件和備份
+# ===========================================
+
+# 備份檔案
+*.backup
+*.bak
+*.orig
+
+# 文件草稿
+*.draft
+*.todo
+
+# ===========================================
+# 🔧 開發工具
+# ===========================================
+
+# Air (Go 熱重載工具)
+backend/.air.toml
+backend/tmp/
+
+# 測試資料
+test-data/
+mock-data/
+
+# API 測試
+*.http
+*.rest
+
+# 效能分析
+*.prof
+*.pprof 
