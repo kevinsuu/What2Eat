@@ -76,7 +76,6 @@ const theme = createTheme({
     },
   },
 });
-
 function App() {
   const [restaurants, setRestaurants] = useState<RestaurantType[]>([]);
   const [loading, setLoading] = useState(false);
