@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { LocationOn, Restaurant, LocalCafe, Favorite, RestaurantMenu } from '@mui/icons-material';
 import RestaurantCard from './components/RestaurantCard';
-import { getRecommendations } from './services/api';
+import { getRecommendations, healthCheck } from './services/api';
 import type { Restaurant as RestaurantType } from './types';
 import logo from '../public/image.png';
 
@@ -89,6 +89,34 @@ function App() {
   // 在加載時添加動畫效果
   useEffect(() => {
     setAnimateIn(true);
+  }, []);
+
+  // 保持 Render 服務活躍的健康檢查
+  useEffect(() => {
+    console.log('初始化健康檢查系統');
+
+    // 健康檢查函數
+    const performHealthCheck = async () => {
+      console.log('執行健康檢查...');
+      try {
+        await healthCheck();
+        console.log('健康檢查成功 - 服務正常運行');
+      } catch (err) {
+        console.log('健康檢查失敗 - 服務可能正在啟動', err);
+      }
+    };
+
+    // 立即執行一次
+    performHealthCheck();
+
+    // 每分鐘執行一次健康檢查
+    console.log('設置健康檢查間隔: 1分鐘');
+    const interval = setInterval(performHealthCheck, 1 * 60 * 1000);
+
+    return () => {
+      console.log('清理健康檢查間隔');
+      clearInterval(interval);
+    };
   }, []);
 
   // 監聽點擊事件，達到5次顯示捐贈對話框
