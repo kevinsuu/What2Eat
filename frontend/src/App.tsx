@@ -139,7 +139,8 @@ function App() {
 
   const handleDonate = () => {
     // 使用 Ko-fi 連結進行 PayPal 支付
-    window.open('https://ko-fi.com/kevinsuu', '_blank');
+    const kofiUsername = import.meta.env.VITE_KOFI_USERNAME || 'kevinsuu';
+    window.open(`https://ko-fi.com/${kofiUsername}`, '_blank');
     setShowDonateDialog(false);
   };
 
