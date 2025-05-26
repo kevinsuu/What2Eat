@@ -22,6 +22,8 @@ export const getRecommendations = async (lat: number, lng: number): Promise<Reco
         if (axios.isAxiosError(error)) {
             if (error.response?.status === 400) {
                 throw new Error('位置資料無效');
+            } else if (error.response?.status === 429) {
+                throw new Error('請求過於頻繁，請稍後再試');
             } else if (error.response?.status === 500) {
                 throw new Error('服務器錯誤，請稍後再試');
             } else if (error.code === 'ECONNABORTED') {

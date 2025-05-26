@@ -224,7 +224,17 @@ function App() {
 
       // 獲取推薦餐廳
       const data = await getRecommendations(coords.lat, coords.lng);
-      setRestaurants(data.restaurants);
+
+      // 檢查是否能直接使用URL，避免429錯誤
+      const processedRestaurants = data.restaurants.map(restaurant => {
+        if (restaurant.photo_url && restaurant.photo_url.includes('lh3.googleusercontent.com/place-photos')) {
+          // 這種格式的URL是已經處理過的，可以直接使用
+          return restaurant;
+        }
+        return restaurant;
+      });
+
+      setRestaurants(processedRestaurants);
 
       if (data.restaurants.length === 0) {
         setError('附近沒有找到合適的餐廳，請稍後再試');

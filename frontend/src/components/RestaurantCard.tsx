@@ -46,10 +46,18 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
     // 修改圖片URL，添加較小的尺寸參數來減少流量
     const getOptimizedImageUrl = (url: string) => {
         if (!url) return '';
-        // 如果已經有參數，添加更多參數
+
+        // 如果是Google的Place Photos URL或lh3.googleusercontent.com，就直接使用不添加額外參數
+        if (url.includes('maps.googleapis.com/maps/api/place/photo') ||
+            url.includes('lh3.googleusercontent.com/place-photos')) {
+            return url;
+        }
+
+        // 如果是其他URL且已經有參數，添加更多參數
         if (url.includes('?')) {
             return `${url}&maxwidth=400&maxheight=${CARD_IMAGE_HEIGHT}`;
         }
+
         // 否則添加第一個參數
         return `${url}?maxwidth=400&maxheight=${CARD_IMAGE_HEIGHT}`;
     };
