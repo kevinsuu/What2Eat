@@ -550,8 +550,18 @@ function App() {
           />
           <DialogContentText id="donate-dialog-description" sx={{ textAlign: 'center', mb: 2 }}>
             {parseInt(localStorage.getItem('donateRefuseCount') || '0') > 0
-              ? '開發與維護這個應用真的很辛苦，確定不支持我一下嗎？您的小小支持是我們最大的動力！'
-              : '如果這個應用幫到了你，考慮請我喝杯咖啡支持開發嗎？'}
+              ? (
+                <>
+                  開發與維護這個應用真的很辛苦<br />
+                  確定不支持我一下嗎？<br />
+                  您的小小支持是我們最大的動力！
+                </>
+              ) : (
+                <>
+                  如果這個應用幫到了你<br />
+                  考慮請我喝杯咖啡支持開發嗎？
+                </>
+              )}
             <Box
               component="span"
               display="block"
@@ -565,7 +575,7 @@ function App() {
               }}
             >
               <LocalCafe sx={{ verticalAlign: 'middle', mr: 0.5 }} />
-              您的支持讓我們能夠持續改進與開發更好的功能！
+              您的支持讓我們能夠持續改進<br />與開發更好的功能！
             </Box>
           </DialogContentText>
         </DialogContent>

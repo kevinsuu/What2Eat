@@ -5,6 +5,8 @@ export interface Restaurant {
     place_id: string;
     address: string;
     photo_url?: string;
+    price_level: number;
+    average_price: string;
 }
 
 export interface RecommendResponse {
