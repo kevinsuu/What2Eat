@@ -1,0 +1,37 @@
+name: 部署到 GitHub Pages
+
+on:
+  push:
+    paths:
+      - 'frontend/dist/**'  # 只有當 dist 目錄有變更時才觸發
+    branches: [ main ]
+  workflow_dispatch:  # 允許手動觸發
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允許一個並發部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 檢出代碼
+        uses: actions/checkout@v4
+        
+      - name: 設置 GitHub Pages
+        uses: actions/configure-pages@v4
+      
+      - name: 上傳構建結果
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'frontend/dist'
+
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 
