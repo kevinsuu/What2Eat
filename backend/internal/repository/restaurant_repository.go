@@ -9,6 +9,8 @@ import (
 	"time"
 	"what2eat-backend/internal/model"
 
+	"log"
+
 	"googlemaps.github.io/maps"
 )
 
@@ -32,10 +34,10 @@ func NewRestaurantRepository(mapsClient *maps.Client) *RestaurantRepository {
 	}
 }
 
-func (r *RestaurantRepository) SearchNearby(lat, lng float64) ([]model.Restaurant, error) {
+func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType string) ([]model.Restaurant, error) {
 	// 生成緩存的鍵值
 	// 將經緯度值取至小數點後3位，代表約100公尺的範圍
-	cacheKey := fmt.Sprintf("%.3f:%.3f", lat, lng)
+	cacheKey := fmt.Sprintf("%.3f:%.3f:%s", lat, lng, restaurantType)
 
 	// 讀取緩存需要加讀鎖
 	r.mu.RLock()
@@ -57,9 +59,20 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64) ([]model.Restauran
 			Lat: lat,
 			Lng: lng,
 		},
-		Radius:   1000, // 1公里範圍
-		Type:     maps.PlaceTypeRestaurant,
+		// 改用距離排序而非固定半徑，這需要至少一個關鍵字或類型
+		RankBy:   maps.RankByDistance,
 		Language: "zh-TW",
+	}
+
+	// 如果指定了餐廳類型且不是空字串，添加關鍵字
+	if restaurantType != "" {
+		// 簡化關鍵字處理，使用「主類型 OR 主類型簡稱」格式
+		mainKeyword := getMainKeyword(restaurantType)
+		request.Keyword = mainKeyword
+		log.Printf("搜尋餐廳類型: %s，使用簡化關鍵字: %s", restaurantType, request.Keyword)
+	} else {
+		// 當沒有指定類型時，仍需要一個關鍵字或類型
+		request.Type = maps.PlaceTypeRestaurant
 	}
 
 	// 執行搜尋
@@ -68,16 +81,25 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64) ([]model.Restauran
 		return nil, fmt.Errorf("Google Places API 錯誤: %v", err)
 	}
 
+	// 記錄搜尋結果
+	log.Printf("Google API 返回了 %d 個結果", len(response.Results))
+	for i, place := range response.Results {
+		if i < 10 { // 只記錄前10個，避免日誌過長
+			log.Printf("結果 #%d: %s (評分: %.1f) - %s", i+1, place.Name, place.Rating, place.Vicinity)
+		}
+	}
+
 	var restaurants []model.Restaurant
 	for _, place := range response.Results {
-		// 只選擇評分 4.0 以上的餐廳
-		if place.Rating >= 4.0 {
+		// 降低評分要求到 3.5
+		if place.Rating >= 3.5 {
 			restaurant := model.Restaurant{
-				Name:       place.Name,
-				Rating:     place.Rating,
-				PlaceID:    place.PlaceID,
-				Address:    place.Vicinity,
-				PriceLevel: int(place.PriceLevel),
+				Name:           place.Name,
+				Rating:         place.Rating,
+				PlaceID:        place.PlaceID,
+				Address:        place.Vicinity,
+				PriceLevel:     int(place.PriceLevel),
+				RestaurantType: restaurantType, // 添加餐廳類型
 			}
 
 			// 設置平均消費金額 (根據價格等級估算)
@@ -92,6 +114,21 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64) ([]model.Restauran
 			}
 
 			restaurants = append(restaurants, restaurant)
+		}
+	}
+
+	// 如果結果太少，嘗試用相關名稱關鍵字搜尋補充
+	if len(restaurants) < 5 && restaurantType != "" {
+		log.Printf("%s 搜尋結果不足，嘗試用名稱關鍵字搜尋補充", restaurantType)
+		nameKeywords := getNameKeywords(restaurantType)
+
+		var err error
+		for _, nameKeyword := range nameKeywords {
+			restaurants, err = r.searchRestaurantsByName(ctx, lat, lng, nameKeyword, restaurants, restaurantType)
+			if err != nil {
+				log.Printf("名稱搜尋 '%s' 出錯: %v", nameKeyword, err)
+				// 繼續其他名稱搜尋，不中斷流程
+			}
 		}
 	}
 
@@ -164,4 +201,118 @@ func (r *RestaurantRepository) estimateAveragePrice(priceLevel int) string {
 	default:
 		return "價格未知"
 	}
+}
+
+// 添加名稱搜尋以補充一般搜尋
+func (r *RestaurantRepository) searchRestaurantsByName(ctx context.Context, lat, lng float64, nameKeyword string, existingResults []model.Restaurant, restaurantType string) ([]model.Restaurant, error) {
+	// 設定名稱搜尋參數
+	request := &maps.NearbySearchRequest{
+		Location: &maps.LatLng{
+			Lat: lat,
+			Lng: lng,
+		},
+		RankBy:   maps.RankByDistance,
+		Language: "zh-TW",
+		Name:     nameKeyword, // 使用名稱進行搜尋
+	}
+
+	// 執行搜尋
+	response, err := r.mapsClient.NearbySearch(ctx, request)
+	if err != nil {
+		return existingResults, err // 返回已有的結果，不因這個錯誤而中斷
+	}
+
+	log.Printf("名稱搜尋 '%s' 返回了 %d 個結果", nameKeyword, len(response.Results))
+
+	// 如果已有結果不是空的，則需要避免重複
+	existingIds := make(map[string]bool)
+	for _, r := range existingResults {
+		existingIds[r.PlaceID] = true
+	}
+
+	// 處理搜尋結果
+	for _, place := range response.Results {
+		// 跳過已經存在的結果
+		if existingIds[place.PlaceID] {
+			continue
+		}
+
+		// 只選擇評分 3.5 以上的餐廳
+		if place.Rating >= 3.5 {
+			restaurant := model.Restaurant{
+				Name:           place.Name,
+				Rating:         place.Rating,
+				PlaceID:        place.PlaceID,
+				Address:        place.Vicinity,
+				PriceLevel:     int(place.PriceLevel),
+				RestaurantType: restaurantType, // 硬編碼為餐廳類型
+			}
+
+			// 設置平均消費金額
+			restaurant.AveragePrice = r.estimateAveragePrice(int(place.PriceLevel))
+
+			// 計算距離
+			restaurant.Distance = r.calculateDistance(lat, lng, place.Geometry.Location.Lat, place.Geometry.Location.Lng)
+
+			// 如果有照片，取第一張
+			if len(place.Photos) > 0 {
+				restaurant.PhotoURL = r.getPhotoURL(place.Photos[0].PhotoReference)
+			}
+
+			existingResults = append(existingResults, restaurant)
+			existingIds[place.PlaceID] = true // 避免下次添加重複
+		}
+	}
+
+	return existingResults, nil
+}
+
+// 獲取餐廳類型的主關鍵字
+func getMainKeyword(restaurantType string) string {
+	// 針對不同類型返回最適合 Google Maps API 的關鍵字
+	mainKeywords := map[string]string{
+		"中式料理": "中式料理 OR 中餐",
+		"日式料理": "日式料理 OR 日本料理",
+		"義式料理": "義式料理 OR 義大利料理",
+		"韓式料理": "韓式料理 OR 韓國料理",
+		"美式料理": "美式料理 OR 美國料理",
+		"泰式料理": "泰式料理 OR 泰國料理",
+		"早午餐":  "早午餐 OR brunch",
+		"海鮮料理": "海鮮料理 OR 海鮮",
+		"牛排":   "牛排 OR steak",
+		"火鍋":   "火鍋 OR 鍋",
+		"甜點":   "甜點 OR 蛋糕",
+		"咖啡廳":  "咖啡廳 OR 咖啡",
+	}
+
+	if keyword, exists := mainKeywords[restaurantType]; exists {
+		return keyword
+	}
+
+	return restaurantType
+}
+
+// 獲取餐廳類型的名稱關鍵字清單
+func getNameKeywords(restaurantType string) []string {
+	nameKeywordMap := map[string][]string{
+		"中式料理": {"中餐廳", "中華料理", "小籠包", "炒飯", "餃子", "燒臘", "粵菜", "川菜", "湘菜", "上海菜"},
+		"日式料理": {"壽司", "拉麵", "居酒屋", "丼飯", "生魚片", "串燒", "天婦羅", "日本料理", "炸豬排", "燒肉"},
+		"義式料理": {"義大利麵", "披薩", "pasta", "pizza", "義大利餐廳", "焗烤", "帕尼尼", "燉飯", "提拉米蘇", "義式"},
+		"韓式料理": {"韓國", "韓式", "韓式炸雞", "韓式烤肉", "石鍋拌飯", "部隊鍋", "泡菜", "辣炒年糕", "人蔘雞", "冷麵"},
+		"美式料理": {"漢堡", "牛排", "美式", "三明治", "炸雞", "美國餐廳", "牛肉", "BBQ", "披薩", "薯條"},
+		"泰式料理": {"泰國", "泰式", "酸辣", "打拋", "綠咖哩", "冬陰功", "泰式炒河粉", "椰奶", "芒果糯米飯", "泰國菜"},
+		"早午餐":  {"早餐", "brunch", "班尼迪克蛋", "鬆餅", "吐司", "歐姆蛋", "法式吐司", "松餅", "三明治", "咖啡"},
+		"海鮮料理": {"海鮮", "生魚片", "烤魚", "蝦子", "龍蝦", "螃蟹", "鮭魚", "鮪魚", "貝類", "海鮮餐廳"},
+		"牛排":   {"牛排館", "排餐", "steakhouse", "肋眼", "菲力", "沙朗", "丁骨", "肉眼", "牛小排", "鐵板燒"},
+		"火鍋":   {"麻辣鍋", "涮涮鍋", "石頭鍋", "小火鍋", "鴛鴦鍋", "羊肉爐", "薑母鴨", "沙茶鍋", "海鮮鍋", "泡菜鍋"},
+		"甜點":   {"蛋糕", "甜點店", "冰淇淋", "巧克力", "糕點", "烘焙", "馬卡龍", "塔", "派", "奶酪"},
+		"咖啡廳":  {"咖啡", "coffee", "cafe", "下午茶", "拿鐵", "咖啡店", "espresso", "卡布奇諾", "蛋糕", "甜點"},
+	}
+
+	if keywords, exists := nameKeywordMap[restaurantType]; exists {
+		return keywords
+	}
+
+	// 如果沒有找到對應的名稱關鍵字，返回空數組
+	return []string{}
 }

@@ -83,6 +83,9 @@ func registerRoutes(r *gin.Engine, restaurantHandler *handler.RestaurantHandler)
 	{
 		// API 專用流量限制 (更嚴格)
 		api.Use(middleware.APIRateLimit())
+		// 舊的 POST 方法 (向後兼容)
 		api.POST("/recommend", restaurantHandler.RecommendRestaurants)
+		// 新的 GET 方法 (支援餐廳類型)
+		api.GET("/restaurants", restaurantHandler.GetRestaurants)
 	}
 }
