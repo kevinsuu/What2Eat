@@ -84,4 +84,4 @@ MIT License © 2025 Kevinsu
 ## ✨ 作者 Kevinsu
 
 Backend & Fullstack Engineer  
-📫 kevinsu.dev ｜ ✉️ contact@xxx.com ｜ GitHub [@Kevinsu](https://github.com/Kevinsu)
+📫 kevinsu.dev ｜ ✉️ sjs47311@gmail.com ｜ GitHub [@Kevinsuu](https://github.com/kevinsuu)
