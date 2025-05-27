@@ -46,40 +46,27 @@ const RestaurantList = ({ restaurants }: RestaurantListProps) => {
                         為您推薦 {restaurants.length} 家餐廳
                     </Typography>
                 </Paper>
+
                 <Box
                     sx={{
-                        display: 'grid',
-                        gridTemplateColumns: {
-                            xs: '1fr',
-                            sm: 'repeat(2, 1fr)',
-                            md: 'repeat(3, 1fr)',
-                        },
-                        gap: { xs: 3, md: 2 },
-                        justifyItems: 'center',
-                        mx: 'auto',
-                        width: '100%',
+                        display: 'flex',
+                        flexDirection: { xs: 'column', md: 'row' },
+                        justifyContent: 'space-between',
+                        gap: { xs: 3, md: 3 },
+                        mt: 3
                     }}
                 >
                     {restaurants.map((restaurant, index) => (
-                        <Fade
+                        <Box
                             key={restaurant.place_id || index}
-                            in={true}
-                            style={{ transitionDelay: `${index * 50}ms` }}
-                            timeout={600}
+                            sx={{
+                                flex: '1 1 0',
+                                minWidth: 0,
+                                width: { xs: '100%', md: `${100 / restaurants.length}%` }
+                            }}
                         >
-                            <Box
-                                sx={{
-                                    width: '100%',
-                                    maxWidth: { xs: '100%', sm: '320px', md: '100%' },
-                                    transition: 'transform 0.3s ease',
-                                    '&:hover': {
-                                        transform: 'translateY(-5px)',
-                                    }
-                                }}
-                            >
-                                <RestaurantCard restaurant={restaurant} />
-                            </Box>
-                        </Fade>
+                            <RestaurantCard restaurant={restaurant} />
+                        </Box>
                     ))}
                 </Box>
             </Box>

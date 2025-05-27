@@ -7,8 +7,9 @@ import {
     Button,
     Skeleton,
     Paper,
+    Chip,
 } from '@mui/material';
-import { LocationOn, OpenInNew, NoPhotography, Star, AttachMoney } from '@mui/icons-material';
+import { LocationOn, OpenInNew, NoPhotography, Star, AttachMoney, LocalDining } from '@mui/icons-material';
 import type { Restaurant as RestaurantType } from '../types';
 
 interface RestaurantCardProps {
@@ -75,6 +76,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
         <Paper
             elevation={0}
             sx={{
+                width: '100%',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -87,7 +89,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 },
                 background: 'white',
                 border: '1px solid rgba(0,0,0,0.05)',
-                maxHeight: '400px', // 限制最大高度，適應單屏顯示
             }}
         >
             <Box sx={{
@@ -95,7 +96,8 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 position: 'relative',
                 width: '100%',
                 overflow: 'hidden',
-                backgroundColor: 'grey.100'
+                backgroundColor: 'grey.100',
+                flexShrink: 0
             }}>
                 {restaurant.photo_url && !imageError ? (
                     <>
@@ -176,9 +178,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
             </Box>
 
             <CardContent sx={{
-                flexGrow: 1,
                 display: 'flex',
                 flexDirection: 'column',
+                flexGrow: 1,
                 py: { xs: 1.5, md: 1.5 },
                 px: { xs: 2, md: 2 },
             }}>
@@ -199,6 +201,29 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                     {renderPriceLevel(restaurant.price_level)}
                 </Box>
 
+                {/* 餐廳類型標籤 */}
+                {restaurant.restaurant_type && (
+                    <Box mb={1.5}>
+                        <Chip
+                            icon={<LocalDining sx={{ fontSize: '0.8rem' }} />}
+                            label={restaurant.restaurant_type}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                            sx={{
+                                borderRadius: '12px',
+                                height: '24px',
+                                fontSize: '0.75rem',
+                                '& .MuiChip-icon': {
+                                    color: 'primary.main',
+                                    ml: 0.5
+                                }
+                            }}
+                        />
+                    </Box>
+                )}
+
+                {/* 信息區塊 */}
                 <Box
                     sx={{
                         background: 'rgba(0, 0, 0, 0.02)',
@@ -259,7 +284,12 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                     </Box>
                 </Box>
 
-                <Box mt="auto" pt={0.8}>
+                {/* 按鈕區，強制在底部 */}
+                <Box sx={{
+                    mt: 'auto',
+                    pt: 1.5,
+                    marginTop: 'auto'
+                }}>
                     <Button
                         variant="contained"
                         fullWidth

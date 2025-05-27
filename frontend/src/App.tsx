@@ -201,7 +201,7 @@ function App() {
     });
   };
 
-  const handleRecommend = async () => {
+  const handleRecommend = async (restaurantType?: string) => {
     setLoading(true);
     setError(null);
     setRestaurants([]);
@@ -211,12 +211,14 @@ function App() {
       const coords = location || await getCurrentLocation();
 
       // 獲取推薦餐廳
-      const data = await getRecommendations(coords.lat, coords.lng);
+      const data = await getRecommendations(coords.lat, coords.lng, restaurantType);
 
       setRestaurants(data.restaurants);
 
       if (data.restaurants.length === 0) {
-        setError('附近沒有找到合適的餐廳，請稍後再試');
+        setError(restaurantType
+          ? `附近沒有找到合適的${restaurantType}餐廳，請嘗試其他類型`
+          : '附近沒有找到合適的餐廳，請稍後再試');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '發生未知錯誤');

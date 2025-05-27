@@ -1,16 +1,38 @@
-import { Box, Typography, Paper, Button, CircularProgress } from '@mui/material';
-import { Restaurant, RestaurantMenu } from '@mui/icons-material';
+import { useState } from 'react';
+import { Box, Typography, Paper, Button, CircularProgress, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Restaurant, RestaurantMenu, FilterAlt } from '@mui/icons-material';
 import { LocationOn } from '@mui/icons-material';
 import { Fade } from '@mui/material';
+import { getAllRestaurantTypes, RESTAURANT_TYPES } from '../types';
 
 type HeaderProps = {
     loading: boolean;
     location: { lat: number; lng: number } | null;
-    onRecommend: () => void;
+    onRecommend: (restaurantType?: string) => void;
     hasRestaurants: boolean;
 };
 
 const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps) => {
+    const [selectedType, setSelectedType] = useState<string>(RESTAURANT_TYPES.RANDOM);
+    const [openTypeDialog, setOpenTypeDialog] = useState(false);
+
+    const handleOpenTypeDialog = () => {
+        setOpenTypeDialog(true);
+    };
+
+    const handleCloseTypeDialog = () => {
+        setOpenTypeDialog(false);
+    };
+
+    const handleTypeSelect = (type: string) => {
+        setSelectedType(type);
+        setOpenTypeDialog(false);
+    };
+
+    const handleRecommend = () => {
+        onRecommend(selectedType === RESTAURANT_TYPES.RANDOM ? undefined : selectedType);
+    };
+
     return (
         <Fade in={true} timeout={800}>
             <Paper
@@ -94,41 +116,71 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                     </Typography>
                 )}
 
-                <Button
-                    variant="contained"
-                    size={hasRestaurants ? "medium" : "large"}
-                    onClick={onRecommend}
-                    disabled={loading}
-                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Restaurant />}
-                    sx={{
-                        py: {
-                            xs: 1.5,
-                            md: hasRestaurants ? 1 : 1.5
-                        },
-                        px: {
-                            xs: 4,
-                            md: hasRestaurants ? 3 : 4
-                        },
-                        fontSize: {
-                            xs: '1.05rem',
-                            md: hasRestaurants ? '0.9rem' : '1rem'
-                        },
-                        borderRadius: 3,
-                        width: { xs: '100%', sm: 'auto' },
-                        minWidth: {
-                            xs: '100%',
-                            sm: hasRestaurants ? '150px' : '200px'
-                        },
-                        transition: 'all 0.3s ease',
-                        background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
-                        '&:hover': {
-                            background: 'linear-gradient(45deg, #e85a2a 30%, #ff6b35 90%)',
-                            transform: 'translateY(-2px)',
-                        }
-                    }}
-                >
-                    {loading ? '搜尋中...' : '推薦餐廳'}
-                </Button>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: 2,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    mb: 2
+                }}>
+                    <Button
+                        variant="outlined"
+                        onClick={handleOpenTypeDialog}
+                        startIcon={<FilterAlt />}
+                        disabled={loading}
+                        sx={{
+                            borderRadius: 3,
+                            py: 1,
+                            px: 2,
+                            borderColor: selectedType ? 'primary.main' : 'grey.300',
+                            color: selectedType ? 'primary.main' : 'text.secondary',
+                            backgroundColor: selectedType ? 'rgba(255, 107, 53, 0.05)' : 'transparent',
+                            '&:hover': {
+                                backgroundColor: selectedType ? 'rgba(255, 107, 53, 0.1)' : 'rgba(0, 0, 0, 0.04)',
+                                borderColor: selectedType ? 'primary.main' : 'grey.400',
+                            }
+                        }}
+                    >
+                        {selectedType || '選擇餐廳類型'}
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        size={hasRestaurants ? "medium" : "large"}
+                        onClick={handleRecommend}
+                        disabled={loading}
+                        startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Restaurant />}
+                        sx={{
+                            py: {
+                                xs: 1.5,
+                                md: hasRestaurants ? 1 : 1.5
+                            },
+                            px: {
+                                xs: 4,
+                                md: hasRestaurants ? 3 : 4
+                            },
+                            fontSize: {
+                                xs: '1.05rem',
+                                md: hasRestaurants ? '0.9rem' : '1rem'
+                            },
+                            borderRadius: 3,
+                            width: { xs: '100%', sm: 'auto' },
+                            minWidth: {
+                                xs: '100%',
+                                sm: hasRestaurants ? '150px' : '200px'
+                            },
+                            transition: 'all 0.3s ease',
+                            background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
+                            '&:hover': {
+                                background: 'linear-gradient(45deg, #e85a2a 30%, #ff6b35 90%)',
+                                transform: 'translateY(-2px)',
+                            }
+                        }}
+                    >
+                        {loading ? '搜尋中...' : '推薦餐廳'}
+                    </Button>
+                </Box>
 
                 {location && (
                     <Box mt={1} display="flex" alignItems="center" justifyContent="center">
@@ -138,6 +190,80 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                         </Typography>
                     </Box>
                 )}
+
+                {/* 餐廳類型選擇對話框 */}
+                <Dialog
+                    open={openTypeDialog}
+                    onClose={handleCloseTypeDialog}
+                    PaperProps={{
+                        sx: {
+                            borderRadius: 3,
+                            width: '100%',
+                            maxWidth: '500px',
+                            mx: 2
+                        }
+                    }}
+                >
+                    <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
+                        選擇餐廳類型
+                    </DialogTitle>
+                    <DialogContent sx={{ pt: 1 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: 1.5,
+                                mt: 0.5,
+                                justifyContent: 'center'
+                            }}
+                        >
+                            {getAllRestaurantTypes().map((type) => (
+                                <Chip
+                                    key={type}
+                                    label={type}
+                                    onClick={() => handleTypeSelect(type)}
+                                    color={selectedType === type ? "primary" : "default"}
+                                    variant={selectedType === type ? "filled" : "outlined"}
+                                    sx={{
+                                        fontWeight: selectedType === type ? 600 : 400,
+                                        transition: 'all 0.2s ease',
+                                        margin: 0.5,
+                                        '&:hover': {
+                                            backgroundColor: selectedType === type
+                                                ? 'primary.main'
+                                                : 'rgba(0, 0, 0, 0.08)'
+                                        }
+                                    }}
+                                />
+                            ))}
+                        </Box>
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 3, justifyContent: 'center' }}>
+                        <Button
+                            onClick={handleCloseTypeDialog}
+                            variant="outlined"
+                            sx={{ borderRadius: 2, px: 3 }}
+                        >
+                            取消
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setSelectedType(RESTAURANT_TYPES.RANDOM);
+                                setOpenTypeDialog(false);
+                            }}
+                            variant="contained"
+                            color="primary"
+                            sx={{
+                                borderRadius: 2,
+                                px: 3,
+                                ml: 2,
+                                bgcolor: 'primary.main'
+                            }}
+                        >
+                            清除選擇
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Paper>
         </Fade>
     );
