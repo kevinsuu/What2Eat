@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"math/rand"
 	"os"
 	"sync"
 	"time"
@@ -35,7 +36,9 @@ func NewRestaurantRepository(mapsClient *maps.Client) *RestaurantRepository {
 	}
 }
 
-func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType string) ([]model.Restaurant, error) {
+// SearchNearby 搜尋附近餐廳
+// fetchPhotos 參數控制是否獲取照片URL，如果為false則只儲存照片引用
+func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType string, fetchPhotos ...bool) ([]model.Restaurant, error) {
 	// 生成緩存的鍵值
 	// 將經緯度值取至小數點後3位，代表約100公尺的範圍
 	cacheKey := fmt.Sprintf("%.3f:%.3f:%s", lat, lng, restaurantType)
@@ -47,6 +50,23 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType str
 		// 檢查緩存是否在有效期內（1小時）
 		if time.Since(entry.timestamp) < time.Hour {
 			r.mu.RUnlock()
+
+			// 如果需要照片URL，檢查並處理
+			shouldFetchPhotos := len(fetchPhotos) > 0 && fetchPhotos[0]
+			if shouldFetchPhotos {
+				results := make([]model.Restaurant, len(entry.restaurants))
+				copy(results, entry.restaurants)
+
+				// 處理照片URL
+				for i := range results {
+					if len(results[i].PhotoURL) > 9 && results[i].PhotoURL[:9] == "photoref:" {
+						results[i].PhotoURL = r.getPhotoURL(results[i].PhotoURL[9:])
+					}
+				}
+
+				return results, nil
+			}
+
 			return entry.restaurants, nil
 		}
 	}
@@ -90,6 +110,9 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType str
 		}
 	}
 
+	// 檢查是否需要獲取照片URL
+	shouldFetchPhotos := len(fetchPhotos) > 0 && fetchPhotos[0]
+
 	var restaurants []model.Restaurant
 	for _, place := range response.Results {
 		// 降低評分要求到 3.5
@@ -109,11 +132,15 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType str
 			// 計算距離
 			restaurant.Distance = r.calculateDistance(lat, lng, place.Geometry.Location.Lat, place.Geometry.Location.Lng)
 
-			// 儲存第一張照片的引用（如果有），但不立即獲取URL
+			// 處理照片
 			if len(place.Photos) > 0 {
-				// 儲存PhotoReference為特殊格式："photoref:實際引用"
-				// 這樣service層可以判斷是否需要獲取實際URL
-				restaurant.PhotoURL = "photoref:" + place.Photos[0].PhotoReference
+				if shouldFetchPhotos {
+					// 直接獲取URL
+					restaurant.PhotoURL = r.getPhotoURL(place.Photos[0].PhotoReference)
+				} else {
+					// 儲存引用
+					restaurant.PhotoURL = "photoref:" + place.Photos[0].PhotoReference
+				}
 			}
 
 			restaurants = append(restaurants, restaurant)
@@ -125,22 +152,43 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType str
 		log.Printf("%s 搜尋結果不足，嘗試用名稱關鍵字搜尋補充", restaurantType)
 		nameKeywords := getNameKeywords(restaurantType)
 
-		var err error
 		for _, nameKeyword := range nameKeywords {
-			restaurants, err = r.searchRestaurantsByName(ctx, lat, lng, nameKeyword, restaurants, restaurantType)
+			additionalResults, err := r.searchRestaurantsByName(ctx, lat, lng, nameKeyword, restaurants, restaurantType, shouldFetchPhotos)
 			if err != nil {
 				log.Printf("名稱搜尋 '%s' 出錯: %v", nameKeyword, err)
 				// 繼續其他名稱搜尋，不中斷流程
+				continue
 			}
+			restaurants = additionalResults
 		}
 	}
 
 	// 寫入緩存需要加寫鎖
 	r.mu.Lock()
-	// 儲存到緩存
-	r.cache[cacheKey] = cacheEntry{
-		restaurants: restaurants,
-		timestamp:   time.Now(),
+	// 儲存到緩存 (總是儲存不帶URL的版本，只儲存引用)
+	if shouldFetchPhotos {
+		// 如果是帶URL的版本，轉換回只帶引用的版本再緩存
+		cacheVersion := make([]model.Restaurant, len(restaurants))
+		copy(cacheVersion, restaurants)
+
+		for i := range cacheVersion {
+			// 如果是帶完整URL的，轉換為引用格式
+			if len(cacheVersion[i].PhotoURL) > 0 && cacheVersion[i].PhotoURL[:9] != "photoref:" {
+				// 這裡我們沒有從URL反推引用的方法，暫時保留URL格式
+				// 理想情況下應該維護一個URL到引用的反向映射
+			}
+		}
+
+		r.cache[cacheKey] = cacheEntry{
+			restaurants: cacheVersion,
+			timestamp:   time.Now(),
+		}
+	} else {
+		// 直接緩存當前版本
+		r.cache[cacheKey] = cacheEntry{
+			restaurants: restaurants,
+			timestamp:   time.Now(),
+		}
 	}
 	r.mu.Unlock()
 
@@ -213,7 +261,7 @@ func (r *RestaurantRepository) estimateAveragePrice(priceLevel int) string {
 }
 
 // 添加名稱搜尋以補充一般搜尋
-func (r *RestaurantRepository) searchRestaurantsByName(ctx context.Context, lat, lng float64, nameKeyword string, existingResults []model.Restaurant, restaurantType string) ([]model.Restaurant, error) {
+func (r *RestaurantRepository) searchRestaurantsByName(ctx context.Context, lat, lng float64, nameKeyword string, existingResults []model.Restaurant, restaurantType string, shouldFetchPhotos bool) ([]model.Restaurant, error) {
 	// 設定名稱搜尋參數
 	request := &maps.NearbySearchRequest{
 		Location: &maps.LatLng{
@@ -263,10 +311,15 @@ func (r *RestaurantRepository) searchRestaurantsByName(ctx context.Context, lat,
 			// 計算距離
 			restaurant.Distance = r.calculateDistance(lat, lng, place.Geometry.Location.Lat, place.Geometry.Location.Lng)
 
-			// 儲存第一張照片的引用（如果有），但不立即獲取URL
+			// 處理照片
 			if len(place.Photos) > 0 {
-				// 儲存PhotoReference為特殊格式："photoref:實際引用"
-				restaurant.PhotoURL = "photoref:" + place.Photos[0].PhotoReference
+				if shouldFetchPhotos {
+					// 直接獲取URL
+					restaurant.PhotoURL = r.getPhotoURL(place.Photos[0].PhotoReference)
+				} else {
+					// 儲存引用
+					restaurant.PhotoURL = "photoref:" + place.Photos[0].PhotoReference
+				}
 			}
 
 			existingResults = append(existingResults, restaurant)
@@ -327,23 +380,46 @@ func getNameKeywords(restaurantType string) []string {
 	return []string{}
 }
 
-// GetPhotoURL 根據照片引用獲取照片URL (公開方法，供Service層使用)
-func (r *RestaurantRepository) GetPhotoURL(photoReference string) string {
-	// 使用較小的圖片尺寸，減少數據量
-	return r.getPhotoURL(photoReference)
-}
-
-// GetPlaceDetails 獲取地點詳細信息
-func (r *RestaurantRepository) GetPlaceDetails(placeID string) (maps.PlaceDetailsResult, error) {
-	ctx := context.Background()
-
-	// 設置請求，只獲取需要的字段以減少API使用量
-	request := &maps.PlaceDetailsRequest{
-		PlaceID:  placeID,
-		Language: "zh-TW",
-		Fields:   []maps.PlaceDetailsFieldMask{maps.PlaceDetailsFieldMaskPhotos},
+// GetRandomRestaurants 獲取指定數量的隨機餐廳，並為它們填充照片URL
+func (r *RestaurantRepository) GetRandomRestaurants(lat, lng float64, restaurantType string, count int) ([]model.Restaurant, error) {
+	// 首先獲取所有符合條件的餐廳，不立即獲取照片URL
+	allRestaurants, err := r.SearchNearby(lat, lng, restaurantType, false)
+	if err != nil {
+		return nil, err
 	}
 
-	// 執行請求
-	return r.mapsClient.PlaceDetails(ctx, request)
+	if len(allRestaurants) == 0 {
+		return []model.Restaurant{}, nil
+	}
+
+	// 打亂順序
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(allRestaurants), func(i, j int) {
+		allRestaurants[i], allRestaurants[j] = allRestaurants[j], allRestaurants[i]
+	})
+
+	// 取指定數量（最多不超過實際餐廳數量）
+	resultCount := count
+	if len(allRestaurants) < resultCount {
+		resultCount = len(allRestaurants)
+	}
+	randomRestaurants := allRestaurants[:resultCount]
+
+	// 只為這些最終結果獲取照片URL
+	for i := range randomRestaurants {
+		// 檢查是否有照片引用（以"photoref:"開頭）
+		if len(randomRestaurants[i].PhotoURL) > 9 && randomRestaurants[i].PhotoURL[:9] == "photoref:" {
+			// 提取照片引用
+			photoReference := randomRestaurants[i].PhotoURL[9:]
+			// 獲取實際的照片URL
+			randomRestaurants[i].PhotoURL = r.getPhotoURL(photoReference)
+
+			// 添加延遲以避免超過API限制
+			if i < resultCount-1 {
+				time.Sleep(300 * time.Millisecond)
+			}
+		}
+	}
+
+	return randomRestaurants, nil
 }
