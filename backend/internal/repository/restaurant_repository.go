@@ -29,8 +29,9 @@ type cacheEntry struct {
 func NewRestaurantRepository(mapsClient *maps.Client) *RestaurantRepository {
 	return &RestaurantRepository{
 		mapsClient: mapsClient,
-		cache:      make(map[string]cacheEntry),
-		photoCache: make(map[string]string),
+		cache:      make(map[string]cacheEntry, 50), // 增加初始容量以減少擴容頻率
+		photoCache: make(map[string]string, 100),    // 照片緩存可能更多
+		mu:         sync.RWMutex{},
 	}
 }
 
@@ -108,9 +109,11 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType str
 			// 計算距離
 			restaurant.Distance = r.calculateDistance(lat, lng, place.Geometry.Location.Lat, place.Geometry.Location.Lng)
 
-			// 如果有照片，取第一張
+			// 儲存第一張照片的引用（如果有），但不立即獲取URL
 			if len(place.Photos) > 0 {
-				restaurant.PhotoURL = r.getPhotoURL(place.Photos[0].PhotoReference)
+				// 儲存PhotoReference為特殊格式："photoref:實際引用"
+				// 這樣service層可以判斷是否需要獲取實際URL
+				restaurant.PhotoURL = "photoref:" + place.Photos[0].PhotoReference
 			}
 
 			restaurants = append(restaurants, restaurant)
@@ -165,6 +168,11 @@ func (r *RestaurantRepository) calculateDistance(lat1, lng1, lat2, lng2 float64)
 }
 
 func (r *RestaurantRepository) getPhotoURL(photoReference string) string {
+	// 如果照片引用為空，返回空字符串
+	if photoReference == "" {
+		return ""
+	}
+
 	// 先檢查緩存
 	r.mu.RLock()
 	if url, found := r.photoCache[photoReference]; found {
@@ -173,11 +181,12 @@ func (r *RestaurantRepository) getPhotoURL(photoReference string) string {
 	}
 	r.mu.RUnlock()
 
+	// 避免頻繁調用Google API，使用較小的圖片尺寸
 	apiKey := os.Getenv("GOOGLE_MAPS_API_KEY")
 	url := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=%s&key=%s",
 		photoReference, apiKey)
 
-	// 儲存到緩存
+	// 儲存到緩存，照片URL可以長期緩存，因為引用ID是固定的
 	r.mu.Lock()
 	r.photoCache[photoReference] = url
 	r.mu.Unlock()
@@ -254,9 +263,10 @@ func (r *RestaurantRepository) searchRestaurantsByName(ctx context.Context, lat,
 			// 計算距離
 			restaurant.Distance = r.calculateDistance(lat, lng, place.Geometry.Location.Lat, place.Geometry.Location.Lng)
 
-			// 如果有照片，取第一張
+			// 儲存第一張照片的引用（如果有），但不立即獲取URL
 			if len(place.Photos) > 0 {
-				restaurant.PhotoURL = r.getPhotoURL(place.Photos[0].PhotoReference)
+				// 儲存PhotoReference為特殊格式："photoref:實際引用"
+				restaurant.PhotoURL = "photoref:" + place.Photos[0].PhotoReference
 			}
 
 			existingResults = append(existingResults, restaurant)
@@ -315,4 +325,25 @@ func getNameKeywords(restaurantType string) []string {
 
 	// 如果沒有找到對應的名稱關鍵字，返回空數組
 	return []string{}
+}
+
+// GetPhotoURL 根據照片引用獲取照片URL (公開方法，供Service層使用)
+func (r *RestaurantRepository) GetPhotoURL(photoReference string) string {
+	// 使用較小的圖片尺寸，減少數據量
+	return r.getPhotoURL(photoReference)
+}
+
+// GetPlaceDetails 獲取地點詳細信息
+func (r *RestaurantRepository) GetPlaceDetails(placeID string) (maps.PlaceDetailsResult, error) {
+	ctx := context.Background()
+
+	// 設置請求，只獲取需要的字段以減少API使用量
+	request := &maps.PlaceDetailsRequest{
+		PlaceID:  placeID,
+		Language: "zh-TW",
+		Fields:   []maps.PlaceDetailsFieldMask{maps.PlaceDetailsFieldMaskPhotos},
+	}
+
+	// 執行請求
+	return r.mapsClient.PlaceDetails(ctx, request)
 }

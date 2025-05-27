@@ -57,8 +57,28 @@ func (s *RestaurantService) RecommendRestaurants(ctx context.Context, lat, lng f
 		maxResults = len(restaurants)
 	}
 
+	// 只為最終的3家餐廳獲取照片URL，每次請求間添加300毫秒延遲
+	finalRestaurants := restaurants[:maxResults]
+	for i := range finalRestaurants {
+		// 檢查是否有照片引用（以"photoref:"開頭）
+		if len(finalRestaurants[i].PhotoURL) > 9 && finalRestaurants[i].PhotoURL[:9] == "photoref:" {
+			// 提取照片引用
+			photoReference := finalRestaurants[i].PhotoURL[9:]
+			// 獲取實際的照片URL
+			finalRestaurants[i].PhotoURL = s.repo.GetPhotoURL(photoReference)
+
+			// 添加延遲以避免超過API限制
+			if i < maxResults-1 {
+				time.Sleep(300 * time.Millisecond)
+			}
+		} else if finalRestaurants[i].PhotoURL == "" {
+			// 如果沒有照片引用，可以選擇使用預設圖片或留空
+			log.Printf("餐廳 %s 沒有照片", finalRestaurants[i].Name)
+		}
+	}
+
 	log.Printf("成功推薦 %d 家餐廳", maxResults)
-	return restaurants[:maxResults], nil
+	return finalRestaurants, nil
 }
 
 // 為了向後兼容舊的 API 格式
