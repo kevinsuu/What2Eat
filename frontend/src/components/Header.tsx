@@ -39,9 +39,9 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                 elevation={2}
                 sx={{
                     borderRadius: 3,
-                    py: { xs: 4, md: hasRestaurants ? 2 : 3 },
-                    px: { xs: 3, md: hasRestaurants ? 3 : 4 },
-                    mb: { xs: 4, md: hasRestaurants ? 3 : 2 },
+                    py: { xs: 2, md: hasRestaurants ? 1.5 : 2 },
+                    px: { xs: 2, md: hasRestaurants ? 2 : 3 },
+                    mb: { xs: 2, md: hasRestaurants ? 2 : 1.5 },
                     textAlign: 'center',
                     background: 'rgba(255, 255, 255, 0.95)',
                     backdropFilter: 'blur(10px)',
@@ -50,13 +50,13 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                     maxWidth: hasRestaurants ? '100%' : '800px',
                     mx: 'auto',
                     '&:hover': {
-                        boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
                     },
                 }}
             >
                 <Box
                     sx={{
-                        mb: { xs: 3, md: hasRestaurants ? 1 : 2 },
+                        mb: { xs: 1.5, md: hasRestaurants ? 0.5 : 1 },
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center'
@@ -66,11 +66,11 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            mb: hasRestaurants ? 0 : 1,
+                            mb: hasRestaurants ? 0 : 0.5,
                             '& svg': {
-                                fontSize: hasRestaurants ? '1.5rem' : '2rem',
+                                fontSize: hasRestaurants ? '1.3rem' : '1.8rem',
                                 color: 'primary.main',
-                                mr: 1
+                                mr: 0.5
                             }
                         }}
                     >
@@ -81,8 +81,8 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                             color="primary"
                             sx={{
                                 fontSize: {
-                                    xs: '2.5rem',
-                                    md: hasRestaurants ? '2rem' : '2.5rem'
+                                    xs: '2rem',
+                                    md: hasRestaurants ? '1.8rem' : '2.2rem'
                                 },
                                 background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
                                 WebkitBackgroundClip: 'text',
@@ -99,15 +99,15 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                 <Typography
                     variant="h6"
                     color="text.secondary"
-                    mb={2}
+                    mb={1}
                     sx={{
-                        fontSize: '1rem',
-                        px: 2,
+                        fontSize: '0.9rem',
+                        px: 1,
                         maxWidth: '600px',
                         mx: 'auto',
-                        lineHeight: 1.4,
+                        lineHeight: 1.3,
                         opacity: hasRestaurants ? 0.8 : 1,
-                        height: '24px'
+                        height: '22px'
                     }}
                 >
                     {hasRestaurants ? '推薦完成！選擇其他類型再試試看？' : '不知道要吃什麼？讓我們為你推薦附近的優質餐廳！'}
@@ -116,10 +116,10 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                 <Box sx={{
                     display: 'flex',
                     flexDirection: { xs: 'column', sm: 'row' },
-                    gap: 2,
+                    gap: 1.5,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    mb: 2
+                    mb: 1
                 }}>
                     <Button
                         variant="outlined"

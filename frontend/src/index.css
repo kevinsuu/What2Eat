@@ -37,23 +37,24 @@ body,
   padding: 0;
   width: 100%;
   overflow-x: hidden;
-  /* 防止水平滾動 */
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 body {
   min-height: 100vh;
   background-color: #f0f2f5;
+  overflow: hidden;
 }
 
 #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
-  /* 改用最小高度，避免在手機上內容被截斷 */
+  height: 100vh;
   width: 100%;
-  overflow: auto;
-  /* 必要時才顯示滾動條 */
+  overflow: hidden;
 }
 
 h1 {
@@ -217,6 +218,34 @@ body {
 .MuiButton-root {
   min-height: 44px;
   /* iOS建議的最小點擊區域高度 */
+}
+
+/* 新增固定高度規則，確保所有內容在一個視窗內完整顯示 */
+.MuiContainer-root {
+  max-width: 1200px !important;
+  height: calc(100vh - 60px) !important;
+  overflow: hidden !important;
+}
+
+/* 調整卡片在小屏幕設備上的樣式 */
+@media (max-height: 800px) {
+  .MuiCardMedia-root {
+    height: 100px !important;
+  }
+
+  .MuiCardContent-root {
+    padding: 8px !important;
+  }
+
+  .MuiTypography-h6 {
+    font-size: 0.9rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .MuiBox-root .MuiChip-root {
+    height: 20px !important;
+    font-size: 0.7rem !important;
+  }
 }
 
 /* 優化加載時的過渡效果 */

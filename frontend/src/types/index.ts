@@ -36,7 +36,8 @@ export const RESTAURANT_TYPES = {
     STEAK: '牛排',
     HOTPOT: '火鍋',
     DESSERT: '甜點',
-    CAFE: '咖啡廳'
+    CAFE: '咖啡廳',
+    BUFFET: '自助餐廳'
 } as const;
 
 // 餐廳類型與 Google Maps 類型對應表
@@ -52,7 +53,8 @@ export const RESTAURANT_TYPE_MAPPING = {
     [RESTAURANT_TYPES.STEAK]: 'steak',
     [RESTAURANT_TYPES.HOTPOT]: 'hotpot',
     [RESTAURANT_TYPES.DESSERT]: 'dessert',
-    [RESTAURANT_TYPES.CAFE]: 'cafe'
+    [RESTAURANT_TYPES.CAFE]: 'cafe',
+    [RESTAURANT_TYPES.BUFFET]: 'buffet'
 } as const;
 
 // 返回所有餐廳類型

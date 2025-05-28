@@ -17,7 +17,7 @@ interface RestaurantCardProps {
 }
 
 // 縮小圖片高度，讓卡片更緊湊
-const CARD_IMAGE_HEIGHT = 140;
+const CARD_IMAGE_HEIGHT = 120;
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
     const [imageError, setImageError] = useState(false);
@@ -84,8 +84,8 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 overflow: 'hidden',
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                    transform: 'translateY(-8px)',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
                 },
                 background: 'white',
                 border: '1px solid rgba(0,0,0,0.05)',
@@ -181,8 +181,8 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 flexGrow: 1,
-                py: { xs: 1.5, md: 1.5 },
-                px: { xs: 2, md: 2 },
+                py: { xs: 1, md: 1 },
+                px: { xs: 1.5, md: 1.5 },
             }}>
                 <Box display="flex" alignItems="center" mb={1}>
                     <Typography
@@ -228,11 +228,11 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                     sx={{
                         background: 'rgba(0, 0, 0, 0.02)',
                         borderRadius: 2,
-                        py: 1,
-                        px: 1.2,
+                        py: 0.8,
+                        px: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 0.8,
+                        gap: 0.5,
                     }}
                 >
                     {/* 距離信息 */}
