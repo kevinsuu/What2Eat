@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
 	"time"
 	"what2eat-backend/internal/model"
@@ -42,11 +41,11 @@ func (s *RestaurantService) RecommendRestaurants(ctx context.Context, lat, lng f
 
 	// 如果沒有找到符合條件的餐廳
 	if len(restaurants) == 0 {
-		log.Printf("未找到符合條件的餐廳: 位置 [%.4f, %.4f], 類型: %s", lat, lng, restaurantType)
+		fmt.Printf("未找到符合條件的餐廳: 位置 [%.4f, %.4f], 類型: %s\n", lat, lng, restaurantType)
 		return []model.Restaurant{}, nil
 	}
 
-	log.Printf("成功推薦 %d 家餐廳", len(restaurants))
+	fmt.Printf("成功推薦 %d 家餐廳\n", len(restaurants))
 	return restaurants, nil
 }
 

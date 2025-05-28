@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 	"what2eat-backend/internal/service"
@@ -37,12 +37,12 @@ func (h *RestaurantHandler) RecommendRestaurants(c *gin.Context) {
 	}
 
 	// 紀錄請求
-	log.Printf("接收到推薦餐廳請求: 位置 [%.4f, %.4f], 類型: %s", request.Lat, request.Lng, request.Type)
+	fmt.Printf("接收到推薦餐廳請求: 位置 [%.4f, %.4f], 類型: %s\n", request.Lat, request.Lng, request.Type)
 
 	// 使用餐廳服務搜尋附近餐廳
 	restaurants, err := h.restaurantService.RecommendRestaurants(c, request.Lat, request.Lng, request.Type)
 	if err != nil {
-		log.Printf("餐廳推薦錯誤: %v", err)
+		fmt.Printf("餐廳推薦錯誤: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "無法獲取餐廳推薦", "details": err.Error()})
 		return
 	}
@@ -72,12 +72,12 @@ func (h *RestaurantHandler) GetRestaurants(c *gin.Context) {
 	restaurantType := c.Query("type")
 
 	// 紀錄請求
-	log.Printf("接收到餐廳搜尋請求: 位置 [%.4f, %.4f], 類型: %s", lat, lng, restaurantType)
+	fmt.Printf("接收到餐廳搜尋請求: 位置 [%.4f, %.4f], 類型: %s\n", lat, lng, restaurantType)
 
 	// 使用餐廳服務搜尋附近餐廳
 	restaurants, err := h.restaurantService.RecommendRestaurants(c, lat, lng, restaurantType)
 	if err != nil {
-		log.Printf("餐廳搜尋錯誤: %v", err)
+		fmt.Printf("餐廳搜尋錯誤: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "無法獲取餐廳資訊", "details": err.Error()})
 		return
 	}

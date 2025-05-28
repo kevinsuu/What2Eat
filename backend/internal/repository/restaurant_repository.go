@@ -10,8 +10,6 @@ import (
 	"time"
 	"what2eat-backend/internal/model"
 
-	"log"
-
 	"googlemaps.github.io/maps"
 )
 
@@ -90,7 +88,7 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType str
 		// 簡化關鍵字處理，使用「主類型 OR 主類型簡稱」格式
 		mainKeyword := getMainKeyword(restaurantType)
 		request.Keyword = mainKeyword
-		log.Printf("搜尋餐廳類型: %s，使用簡化關鍵字: %s", restaurantType, request.Keyword)
+		fmt.Printf("搜尋餐廳類型: %s，使用簡化關鍵字: %s\n", restaurantType, request.Keyword)
 	} else {
 		// 當沒有指定類型時，仍需要一個關鍵字或類型
 		request.Type = maps.PlaceTypeRestaurant
@@ -103,10 +101,10 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType str
 	}
 
 	// 記錄搜尋結果
-	log.Printf("Google API 返回了 %d 個結果", len(response.Results))
+	fmt.Printf("Google API 返回了 %d 個結果\n", len(response.Results))
 	for i, place := range response.Results {
 		if i < 10 { // 只記錄前10個，避免日誌過長
-			log.Printf("結果 #%d: %s (評分: %.1f) - %s", i+1, place.Name, place.Rating, place.Vicinity)
+			fmt.Printf("結果 #%d: %s (評分: %.1f) - %s\n", i+1, place.Name, place.Rating, place.Vicinity)
 		}
 	}
 
@@ -149,13 +147,13 @@ func (r *RestaurantRepository) SearchNearby(lat, lng float64, restaurantType str
 
 	// 如果結果太少，嘗試用相關名稱關鍵字搜尋補充
 	if len(restaurants) < 5 && restaurantType != "" {
-		log.Printf("%s 搜尋結果不足，嘗試用名稱關鍵字搜尋補充", restaurantType)
+		fmt.Printf("%s 搜尋結果不足，嘗試用名稱關鍵字搜尋補充\n", restaurantType)
 		nameKeywords := getNameKeywords(restaurantType)
 
 		for _, nameKeyword := range nameKeywords {
 			additionalResults, err := r.searchRestaurantsByName(ctx, lat, lng, nameKeyword, restaurants, restaurantType, shouldFetchPhotos)
 			if err != nil {
-				log.Printf("名稱搜尋 '%s' 出錯: %v", nameKeyword, err)
+				fmt.Printf("名稱搜尋 '%s' 出錯: %v\n", nameKeyword, err)
 				// 繼續其他名稱搜尋，不中斷流程
 				continue
 			}
@@ -279,7 +277,7 @@ func (r *RestaurantRepository) searchRestaurantsByName(ctx context.Context, lat,
 		return existingResults, err // 返回已有的結果，不因這個錯誤而中斷
 	}
 
-	log.Printf("名稱搜尋 '%s' 返回了 %d 個結果", nameKeyword, len(response.Results))
+	fmt.Printf("名稱搜尋 '%s' 返回了 %d 個結果\n", nameKeyword, len(response.Results))
 
 	// 如果已有結果不是空的，則需要避免重複
 	existingIds := make(map[string]bool)

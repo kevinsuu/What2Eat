@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"time"
 	"what2eat-backend/internal/config"
 	"what2eat-backend/internal/handler"
@@ -18,7 +18,7 @@ import (
 func main() {
 	// 載入 .env 檔案
 	if err := godotenv.Load("../.env"); err != nil {
-		log.Printf("警告: 無法載入 .env 檔案: %v", err)
+		fmt.Printf("警告: 無法載入 .env 檔案: %v\n", err)
 	}
 
 	// 載入配置
@@ -27,7 +27,8 @@ func main() {
 	// 初始化基礎設施
 	mapsClient, err := infrastructure.NewGoogleMapsClient(cfg.GoogleMapsAPIKey)
 	if err != nil {
-		log.Fatalf("無法初始化 Google Maps 客戶端: %v", err)
+		fmt.Printf("無法初始化 Google Maps 客戶端: %v\n", err)
+		return
 	}
 
 	// 初始化 Repository
@@ -70,9 +71,10 @@ func main() {
 	registerRoutes(r, restaurantHandler)
 
 	// 啟動服務器
-	log.Printf("服務器啟動在端口 %s", cfg.Port)
+	fmt.Printf("服務器啟動在端口 %s\n", cfg.Port)
 	if err := r.Run(":" + cfg.Port); err != nil {
-		log.Fatalf("服務器啟動失敗: %v", err)
+		fmt.Printf("服務器啟動失敗: %v\n", err)
+		return
 	}
 }
 
