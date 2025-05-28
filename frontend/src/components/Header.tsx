@@ -96,25 +96,22 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                     </Box>
                 </Box>
 
-                {!hasRestaurants && (
-                    <Typography
-                        variant="h6"
-                        color="text.secondary"
-                        mb={2}
-                        sx={{
-                            fontSize: {
-                                xs: '1.05rem',
-                                md: '1rem'
-                            },
-                            px: { xs: 1, md: 2 },
-                            maxWidth: '600px',
-                            mx: 'auto',
-                            lineHeight: 1.4,
-                        }}
-                    >
-                        不知道要吃什麼？讓我們為你推薦附近的優質餐廳！
-                    </Typography>
-                )}
+                <Typography
+                    variant="h6"
+                    color="text.secondary"
+                    mb={2}
+                    sx={{
+                        fontSize: '1rem',
+                        px: 2,
+                        maxWidth: '600px',
+                        mx: 'auto',
+                        lineHeight: 1.4,
+                        opacity: hasRestaurants ? 0.8 : 1,
+                        height: '24px'
+                    }}
+                >
+                    {hasRestaurants ? '推薦完成！選擇其他類型再試試看？' : '不知道要吃什麼？讓我們為你推薦附近的優質餐廳！'}
+                </Typography>
 
                 <Box sx={{
                     display: 'flex',

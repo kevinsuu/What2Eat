@@ -28,7 +28,7 @@ export const getRecommendations = async (
     restaurantType?: string
 ): Promise<RecommendResponse> => {
     try {
-        console.log(`發送餐廳推薦請求: 位置 [${lat}, ${lng}], 類型: ${restaurantType || '隨便'}`);
+        console.log(`發送餐廳推薦請求: 位置 [${lat}, ${lng}], 類型: ${restaurantType || '隨便吃'}`);
 
         // 構建請求參數
         const params: Record<string, string | number> = {
@@ -36,8 +36,8 @@ export const getRecommendations = async (
             lng
         };
 
-        // 如果指定了餐廳類型且不是"隨便"，添加到參數中
-        if (restaurantType && restaurantType !== '隨便') {
+        // 如果指定了餐廳類型且不是"隨便吃"，添加到參數中
+        if (restaurantType && restaurantType !== '隨便吃') {
             params.type = restaurantType;
         }
 

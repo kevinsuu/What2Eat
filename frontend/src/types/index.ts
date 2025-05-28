@@ -15,7 +15,6 @@ export interface RecommendResponse {
     message: string;
     usage?: string;           // API使用情況，格式如"5/600"
     reset_in?: string;        // 距離下次重置的時間
-    pacific_time?: string;    // 太平洋時間
 }
 
 export interface Location {
@@ -25,7 +24,7 @@ export interface Location {
 
 // 餐廳類型常數
 export const RESTAURANT_TYPES = {
-    RANDOM: '隨便',
+    RANDOM: '隨便吃',
     CHINESE: '中式料理',
     JAPANESE: '日式料理',
     ITALIAN: '義式料理',

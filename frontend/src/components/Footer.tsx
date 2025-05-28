@@ -2,10 +2,9 @@ import { Box, Typography, Link } from '@mui/material';
 
 type FooterProps = {
     onOpenDonate: () => void;
-    pacificTime?: string;  // 可選的太平洋時間屬性
 };
 
-const Footer = ({ onOpenDonate, pacificTime }: FooterProps) => {
+const Footer = ({ onOpenDonate }: FooterProps) => {
     return (
         <Box
             component="footer"
@@ -41,20 +40,6 @@ const Footer = ({ onOpenDonate, pacificTime }: FooterProps) => {
                 </Link>
             </Typography>
 
-            {pacificTime && (
-                <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{
-                        fontWeight: 400,
-                        fontSize: '0.7rem',
-                        opacity: 0.7,
-                        fontFamily: 'monospace'
-                    }}
-                >
-                    {pacificTime} (API重置時間參考)
-                </Typography>
-            )}
         </Box>
     );
 };
