@@ -259,7 +259,19 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                         <Button
                             onClick={handleCloseTypeDialog}
                             variant="outlined"
-                            sx={{ borderRadius: 2, px: 3 }}
+                            sx={{
+                                borderRadius: 8,
+                                px: 6,
+                                py: 2,
+                                fontSize: '1.2rem',
+                                fontWeight: 500,
+                                borderColor: 'rgba(0, 0, 0, 0.15)',
+                                color: 'text.secondary',
+                                '&:hover': {
+                                    borderColor: 'rgba(0, 0, 0, 0.3)',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.03)'
+                                }
+                            }}
                         >
                             取消
                         </Button>
@@ -271,10 +283,18 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                             variant="contained"
                             color="primary"
                             sx={{
-                                borderRadius: 2,
-                                px: 3,
-                                ml: 2,
-                                bgcolor: 'primary.main'
+                                borderRadius: 8,
+                                px: 6,
+                                py: 2,
+                                fontSize: '1.2rem',
+                                fontWeight: 600,
+                                bgcolor: 'primary.main',
+                                background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
+                                boxShadow: '0 6px 12px rgba(255, 107, 53, 0.25)',
+                                '&:hover': {
+                                    background: 'linear-gradient(45deg, #e85a2a 30%, #ff6b35 90%)',
+                                    boxShadow: '0 8px 20px rgba(255, 107, 53, 0.35)',
+                                }
                             }}
                         >
                             清除選擇
