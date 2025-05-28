@@ -53,8 +53,12 @@ export const getRecommendations = async (
                 // 處理API限制錯誤，格式化錯誤訊息
                 const apiLimitData = error.response.data;
                 if (apiLimitData) {
-                    // 如果有完整的錯誤信息和重置時間
-                    if (apiLimitData.error && apiLimitData.reset_in) {
+                    // Google Maps API額度用完的情況
+                    if (apiLimitData.error && apiLimitData.error.includes('Google Maps API')) {
+                        throw new Error(`${apiLimitData.error} 明天伺服器重啟後將恢復正常服務。`);
+                    }
+                    // 一般的API限制情況
+                    else if (apiLimitData.error && apiLimitData.reset_in) {
                         throw new Error(`${apiLimitData.error} 將在 ${formatResetTime(apiLimitData.reset_in)} 後重置。`);
                     } else if (apiLimitData.error) {
                         throw new Error(apiLimitData.error);
@@ -64,6 +68,11 @@ export const getRecommendations = async (
             } else if (error.code === 'ECONNABORTED') {
                 throw new Error('請求超時，伺服器可能剛啟動，請稍後再試');
             } else if (error.response?.status === 500) {
+                // 嘗試從錯誤詳細信息中提取有用的信息
+                const errorData = error.response.data;
+                if (errorData && errorData.details && errorData.details.includes('OVER_QUERY_LIMIT')) {
+                    throw new Error('伺服器額度已滿，請等明天再使用。');
+                }
                 throw new Error('伺服器內部錯誤，請稍後再試');
             }
         }

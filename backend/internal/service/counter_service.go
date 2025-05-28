@@ -221,6 +221,15 @@ func (c *CounterService) IsLimitExceeded() bool {
 	return c.limitExceeded
 }
 
+// SetLimitExceeded 設置超過限制的狀態
+func (c *CounterService) SetLimitExceeded(exceeded bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.limitExceeded = exceeded
+	c.saveToFile() // 保存狀態變更
+}
+
 // 取得使用量字串 (如: "1/500")
 func (c *CounterService) GetUsageString() string {
 	current, limit := c.GetUsage()

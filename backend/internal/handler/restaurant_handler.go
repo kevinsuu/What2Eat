@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"what2eat-backend/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -63,6 +64,22 @@ func (h *RestaurantHandler) GetRestaurants(c *gin.Context) {
 		errMsg := fmt.Sprintf("餐廳搜尋錯誤: %v", err)
 		fmt.Printf("%s\n", errMsg)
 		h.counterService.LogAPIRequest("/api/restaurants", lat, lng, restaurantType, false, errMsg)
+
+		// 檢查是否為 OVER_QUERY_LIMIT 錯誤
+		if strings.Contains(err.Error(), "OVER_QUERY_LIMIT") {
+			// 設置 limitExceeded 標記
+			h.counterService.SetLimitExceeded(true)
+
+			// 傳回特定的錯誤狀態碼與信息
+			c.JSON(http.StatusTooManyRequests, gin.H{
+				"error":    "Google Maps API 每日額度已用完，請明天再試",
+				"details":  err.Error(),
+				"usage":    h.counterService.GetUsageString(),
+				"reset_in": h.counterService.GetTimeUntilReset().String(),
+			})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "無法獲取餐廳資訊", "details": err.Error()})
 		return
 	}

@@ -269,13 +269,16 @@ function App() {
             {error && (
               <Fade in={!!error} timeout={500}>
                 <Alert
-                  severity="error"
+                  severity={error.includes('額度已') || error.includes('API 每日請求數已達上限') ? "warning" : "error"}
                   sx={{
                     mb: 2, // 減少間距
                     width: '100%',
                     maxWidth: '100%',
                     boxSizing: 'border-box',
                     borderRadius: 2,
+                    // 如果是額度限制錯誤，使用更大的字體和突出顯示
+                    fontSize: error.includes('額度已') || error.includes('API 每日請求數已達上限') ? '1.1rem' : 'inherit',
+                    fontWeight: error.includes('額度已') || error.includes('API 每日請求數已達上限') ? 'bold' : 'normal',
                   }}
                 >
                   {error}
