@@ -220,6 +220,27 @@ function App() {
           ? `附近沒有找到合適的${restaurantType}餐廳，請嘗試其他類型`
           : '附近沒有找到合適的餐廳，請稍後再試');
       }
+
+      // 如果API回傳了太平洋時間，設置到Footer
+      if (data.pacific_time) {
+        const footerElement = document.getElementById('footer');
+        if (footerElement) {
+          const pacificTimeElement = document.createElement('div');
+          pacificTimeElement.style.fontSize = '0.7rem';
+          pacificTimeElement.style.opacity = '0.7';
+          pacificTimeElement.style.fontFamily = 'monospace';
+          pacificTimeElement.textContent = `${data.pacific_time} (API重置時間參考)`;
+
+          // 檢查是否已經有時間元素
+          const existingTime = footerElement.querySelector('.pacific-time');
+          if (existingTime) {
+            existingTime.textContent = `${data.pacific_time} (API重置時間參考)`;
+          } else {
+            pacificTimeElement.className = 'pacific-time';
+            footerElement.appendChild(pacificTimeElement);
+          }
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '發生未知錯誤');
     } finally {

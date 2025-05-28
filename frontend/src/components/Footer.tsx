@@ -9,6 +9,7 @@ const Footer = ({ onOpenDonate, pacificTime }: FooterProps) => {
     return (
         <Box
             component="footer"
+            id="footer"
             sx={{
                 py: { xs: 3, md: 2 },
                 px: 2,

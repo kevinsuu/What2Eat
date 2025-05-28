@@ -13,6 +13,9 @@ export interface Restaurant {
 export interface RecommendResponse {
     restaurants: Restaurant[];
     message: string;
+    usage?: string;           // API使用情況，格式如"5/600"
+    reset_in?: string;        // 距離下次重置的時間
+    pacific_time?: string;    // 太平洋時間
 }
 
 export interface Location {

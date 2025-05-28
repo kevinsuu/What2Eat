@@ -87,20 +87,29 @@ const formatResetTime = (resetTimeStr: string): string => {
         // 嘗試解析 "xxhxxmxxs" 格式
         const hours = resetTimeStr.match(/(\d+)h/);
         const minutes = resetTimeStr.match(/(\d+)m/);
+        const seconds = resetTimeStr.match(/(\d+)\.?\d*s/);
 
-        if (hours && minutes) {
-            const h = parseInt(hours[1]);
-            const m = parseInt(minutes[1]);
+        let result = '';
 
-            if (h > 0) {
-                return `${h}小時${m}分鐘`;
-            } else {
-                return `${m}分鐘`;
+        if (hours) {
+            result += `${hours[1]}小時`;
+        }
+
+        if (minutes) {
+            result += `${minutes[1]}分鐘`;
+        }
+
+        if (seconds) {
+            // 只取整數部分
+            const s = parseInt(seconds[1]);
+            if (s > 0) {
+                result += `${s}秒`;
             }
         }
 
-        return resetTimeStr;
+        return result || resetTimeStr;
     } catch (e) {
-        return resetTimeStr;
+        // 如果有錯誤，嘗試簡單清理字符串
+        return resetTimeStr.replace(/\.\d+s/, 's');
     }
 }; 
