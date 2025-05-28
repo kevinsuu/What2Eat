@@ -50,7 +50,17 @@ export const getRecommendations = async (
         // 提供更友好的錯誤信息
         if (axios.isAxiosError(error)) {
             if (error.response?.status === 429) {
-                throw new Error('請求過於頻繁，請稍後再試');
+                // 處理API限制錯誤，格式化錯誤訊息
+                const apiLimitData = error.response.data;
+                if (apiLimitData) {
+                    // 如果有完整的錯誤信息和重置時間
+                    if (apiLimitData.error && apiLimitData.reset_in) {
+                        throw new Error(`${apiLimitData.error} 將在 ${formatResetTime(apiLimitData.reset_in)} 後重置。`);
+                    } else if (apiLimitData.error) {
+                        throw new Error(apiLimitData.error);
+                    }
+                }
+                throw new Error('每日API請求次數已達上限，請明天再試。');
             } else if (error.code === 'ECONNABORTED') {
                 throw new Error('請求超時，伺服器可能剛啟動，請稍後再試');
             } else if (error.response?.status === 500) {
@@ -59,5 +69,29 @@ export const getRecommendations = async (
         }
 
         throw new Error('無法獲取附近餐廳，請稍後再試');
+    }
+};
+
+// 格式化重置時間
+const formatResetTime = (resetTimeStr: string): string => {
+    try {
+        // 嘗試解析 "xxhxxmxxs" 格式
+        const hours = resetTimeStr.match(/(\d+)h/);
+        const minutes = resetTimeStr.match(/(\d+)m/);
+
+        if (hours && minutes) {
+            const h = parseInt(hours[1]);
+            const m = parseInt(minutes[1]);
+
+            if (h > 0) {
+                return `${h}小時${m}分鐘`;
+            } else {
+                return `${m}分鐘`;
+            }
+        }
+
+        return resetTimeStr;
+    } catch (e) {
+        return resetTimeStr;
     }
 }; 
