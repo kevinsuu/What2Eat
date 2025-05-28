@@ -235,34 +235,30 @@ function App() {
       <Box
         sx={{
           width: '100%',
-          height: '100vh', // 設置為viewport高度
+          minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
           background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-          overflow: 'hidden', // 防止滾動
         }}
       >
         {/* 主要內容區域 */}
         <Box
           sx={{
-            flex: '1 1 auto',
-            pt: { xs: 2, md: 1.5 }, // 減少頂部間距
-            pb: { xs: 1, md: 0.5 }, // 減少底部間距
+            flex: '1 0 auto',
+            pt: { xs: 4, md: 2 }, // 原始的頂部間距
+            pb: { xs: 4, md: 1 }, // 原始的底部間距
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            overflow: 'hidden', // 防止內容滾動
           }}
         >
           <Container
             maxWidth={restaurants.length > 0 ? "xl" : "lg"}
             sx={{
               width: '100%',
-              px: { xs: 2, sm: 2, md: 3 },
+              px: { xs: 2, sm: 3, md: 4 },
               display: 'flex',
               flexDirection: 'column',
-              height: '100%',
-              overflow: 'hidden', // 防止內容滾動
             }}
           >
             <Header
@@ -305,8 +301,9 @@ function App() {
           sx={{
             flexShrink: 0,
             width: '100%',
-            mt: 'auto', // 自動推到底部
-            position: 'relative', // 改為相對定位
+            mt: { xs: 2, md: 0 }, // 減少頂部間距
+            position: { xs: 'relative', md: 'sticky' }, // 在電腦版採用固定定位
+            bottom: 0,
           }}
         >
           <Footer onOpenDonate={() => setShowDonateDialog(true)} />

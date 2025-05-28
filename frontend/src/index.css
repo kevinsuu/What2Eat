@@ -37,24 +37,23 @@ body,
   padding: 0;
   width: 100%;
   overflow-x: hidden;
-  height: 100vh;
-  max-height: 100vh;
-  overflow: hidden;
+  /* 防止水平滾動 */
 }
 
 body {
   min-height: 100vh;
   background-color: #f0f2f5;
-  overflow: hidden;
 }
 
 #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  /* 改用最小高度，避免在手機上內容被截斷 */
   width: 100%;
-  overflow: hidden;
+  overflow: auto;
+  /* 必要時才顯示滾動條 */
 }
 
 h1 {
@@ -128,7 +127,12 @@ button:focus-visible {
 
   /* 調整卡片圖片高度 */
   .MuiCardMedia-root {
-    height: 180px !important;
+    height: 140px !important;
+  }
+
+  /* 確保卡片圖片容器高度 */
+  .MuiPaper-root .MuiBox-root:first-of-type {
+    min-height: auto !important;
   }
 
   /* 調整按鈕大小，使其在手機上更易點擊 */
@@ -162,7 +166,12 @@ button:focus-visible {
 /* 平板版卡片設置 */
 @media (min-width: 600px) and (max-width: 899px) {
   .MuiCardMedia-root {
-    height: 180px !important;
+    height: 140px !important;
+  }
+
+  /* 確保卡片圖片容器高度 */
+  .MuiPaper-root .MuiBox-root:first-of-type {
+    min-height: auto !important;
   }
 
   .MuiContainer-root {
@@ -179,10 +188,14 @@ button:focus-visible {
 /* 電腦版卡片緊湊設定 */
 @media (min-width: 900px) {
 
-  /* 縮小圖片高度 */
+  /* 確保圖片高度 */
   .MuiCardMedia-root {
-    height: 180px !important;
-    /* 與組件中定義的 CARD_IMAGE_HEIGHT 相同 */
+    height: 140px !important;
+  }
+
+  /* 確保卡片圖片容器高度 */
+  .MuiPaper-root .MuiBox-root:first-of-type {
+    min-height: auto !important;
   }
 
   /* 緊湊的標題 */
@@ -220,13 +233,6 @@ body {
   /* iOS建議的最小點擊區域高度 */
 }
 
-/* 新增固定高度規則，確保所有內容在一個視窗內完整顯示 */
-.MuiContainer-root {
-  max-width: 1200px !important;
-  height: calc(100vh - 60px) !important;
-  overflow: hidden !important;
-}
-
 /* 調整卡片在小屏幕設備上的樣式 */
 @media (max-height: 800px) {
   .MuiCardMedia-root {
@@ -251,4 +257,46 @@ body {
 /* 優化加載時的過渡效果 */
 .MuiSkeleton-root {
   border-radius: 4px 4px 0 0;
+}
+
+/* 全局圖片樣式優化 */
+.MuiCardMedia-root {
+  object-fit: cover !important;
+  object-position: center center !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+/* 圖片容器樣式強化 */
+.MuiPaper-root .MuiBox-root:first-of-type {
+  min-height: 140px;
+  position: relative;
+  overflow: hidden !important;
+}
+
+/* 針對圖片高度較低的情況做特殊處理 */
+@media (max-height: 800px) {
+  .MuiCardMedia-root {
+    transform: scale(1.05);
+  }
+}
+
+/* 確保卡片內圖片容器的樣式 */
+.MuiBox-root>div>.MuiPaper-root>.MuiBox-root {
+  overflow: hidden !important;
+}
+
+/* 確保評分徽章顯示在圖片上層 */
+.MuiPaper-root .MuiBox-root:first-of-type>.MuiBox-root {
+  z-index: 10 !important;
+}
+
+/* 調整評分徽章顯示位置 */
+.MuiPaper-root .MuiBox-root:first-of-type .MuiBox-root:nth-child(2) {
+  top: 10px !important;
+  right: 10px !important;
+  position: absolute !important;
 }

@@ -12,17 +12,11 @@ const RestaurantList = ({ restaurants }: RestaurantListProps) => {
 
     return (
         <Fade in={restaurants.length > 0} timeout={800}>
-            <Box sx={{
-                mb: { xs: 2, md: 1 },
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden'
-            }}>
+            <Box sx={{ mb: { xs: 6, md: 4 } }}>
                 <Paper
                     sx={{
-                        p: { xs: 1.5, md: 1 },
-                        mb: { xs: 1.5, md: 1 },
+                        p: { xs: 3, md: 1.5 },
+                        mb: { xs: 3, md: 2 },
                         textAlign: 'center',
                         borderRadius: 3,
                         display: 'flex',
@@ -41,7 +35,7 @@ const RestaurantList = ({ restaurants }: RestaurantListProps) => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: { xs: '1rem', md: '0.9rem' },
+                            fontSize: { xs: '1.25rem', md: '1rem' },
                             my: 0,
                             '& svg': {
                                 mr: 1
@@ -58,10 +52,8 @@ const RestaurantList = ({ restaurants }: RestaurantListProps) => {
                         display: 'flex',
                         flexDirection: { xs: 'column', md: 'row' },
                         justifyContent: 'space-between',
-                        gap: { xs: 2, md: 2 },
-                        mt: 1.5,
-                        height: 'calc(100% - 50px)',
-                        overflow: 'hidden'
+                        gap: { xs: 3, md: 3 },
+                        mt: 3
                     }}
                 >
                     {restaurants.map((restaurant, index) => (
@@ -70,8 +62,7 @@ const RestaurantList = ({ restaurants }: RestaurantListProps) => {
                             sx={{
                                 flex: '1 1 0',
                                 minWidth: 0,
-                                width: { xs: '100%', md: `${100 / restaurants.length}%` },
-                                height: '100%'
+                                width: { xs: '100%', md: `${100 / restaurants.length}%` }
                             }}
                         >
                             <RestaurantCard restaurant={restaurant} />

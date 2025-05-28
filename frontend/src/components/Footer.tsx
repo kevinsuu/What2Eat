@@ -10,7 +10,7 @@ const Footer = ({ onOpenDonate }: FooterProps) => {
             component="footer"
             id="footer"
             sx={{
-                py: { xs: 1.5, md: 1 },
+                py: { xs: 3, md: 2 },
                 px: 2,
                 textAlign: 'center',
                 opacity: 0.9,
@@ -21,13 +21,13 @@ const Footer = ({ onOpenDonate }: FooterProps) => {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: 0.5
+                gap: 1
             }}
         >
             <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{ fontWeight: 500, fontSize: '0.85rem' }}
+                sx={{ fontWeight: 500 }}
             >
                 © {new Date().getFullYear()} What2Eat |
                 <Link

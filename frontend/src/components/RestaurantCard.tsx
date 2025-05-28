@@ -16,8 +16,8 @@ interface RestaurantCardProps {
     restaurant: RestaurantType;
 }
 
-// 縮小圖片高度，讓卡片更緊湊
-const CARD_IMAGE_HEIGHT = 120;
+// 調整圖片容器高度使照片能完全填滿
+const CARD_IMAGE_HEIGHT = 140;
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
     const [imageError, setImageError] = useState(false);
@@ -45,7 +45,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
         );
     };
 
-    // 修改圖片URL，添加較小的尺寸參數來減少流量
+    // 請求合適尺寸的圖片
     const getOptimizedImageUrl = (url: string) => {
         if (!url) return '';
 
@@ -55,13 +55,12 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
             return url;
         }
 
-        // 如果是其他URL且已經有參數，添加更多參數
+        // 請求更大尺寸的圖片，確保品質並設置更高優先級的填滿參數
         if (url.includes('?')) {
-            return `${url}&maxwidth=400&maxheight=${CARD_IMAGE_HEIGHT}`;
+            return `${url}&maxwidth=800&maxheight=400`;
         }
 
-        // 否則添加第一個參數
-        return `${url}?maxwidth=400&maxheight=${CARD_IMAGE_HEIGHT}`;
+        return `${url}?maxwidth=800&maxheight=400`;
     };
 
     const handleImageError = () => {
@@ -77,15 +76,15 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
             elevation={0}
             sx={{
                 width: '100%',
-                height: '100%',
+                height: '100%', // 恢復100%高度
                 display: 'flex',
                 flexDirection: 'column',
                 borderRadius: 3,
                 overflow: 'hidden',
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
+                    transform: 'translateY(-8px)',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
                 },
                 background: 'white',
                 border: '1px solid rgba(0,0,0,0.05)',
@@ -97,7 +96,10 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 width: '100%',
                 overflow: 'hidden',
                 backgroundColor: 'grey.100',
-                flexShrink: 0
+                flexShrink: 0,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
             }}>
                 {restaurant.photo_url && !imageError ? (
                     <>
@@ -117,14 +119,17 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                         )}
                         <CardMedia
                             component="img"
-                            height={CARD_IMAGE_HEIGHT}
                             image={getOptimizedImageUrl(restaurant.photo_url)}
                             alt={restaurant.name}
                             sx={{
-                                objectFit: 'cover',
-                                display: imageLoaded ? 'block' : 'none',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
                                 width: '100%',
                                 height: '100%',
+                                objectFit: 'cover',
+                                objectPosition: 'center center',
+                                display: imageLoaded ? 'block' : 'none',
                                 transition: 'transform 0.5s ease',
                                 filter: 'brightness(0.95)',
                                 '&:hover': {
@@ -155,12 +160,13 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                     </Box>
                 )}
 
-                {/* 評分徽章 */}
+                {/* 評分徽章 - 確保最上層顯示 */}
                 <Box
                     sx={{
                         position: 'absolute',
                         top: 10,
                         right: 10,
+                        zIndex: 20,
                         bgcolor: 'rgba(255, 107, 53, 0.95)',
                         borderRadius: '12px',
                         py: 0.3,
@@ -181,8 +187,8 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 flexGrow: 1,
-                py: { xs: 1, md: 1 },
-                px: { xs: 1.5, md: 1.5 },
+                py: { xs: 1.5, md: 1.5 },
+                px: { xs: 2, md: 2 },
             }}>
                 <Box display="flex" alignItems="center" mb={1}>
                     <Typography
@@ -228,11 +234,11 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                     sx={{
                         background: 'rgba(0, 0, 0, 0.02)',
                         borderRadius: 2,
-                        py: 0.8,
-                        px: 1,
+                        py: 1,
+                        px: 1.2,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 0.5,
+                        gap: 0.8,
                     }}
                 >
                     {/* 距離信息 */}
