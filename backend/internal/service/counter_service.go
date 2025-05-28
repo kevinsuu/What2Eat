@@ -148,14 +148,33 @@ func (c *CounterService) LogAPIRequest(endpoint string, lat, lng float64, restau
 	}
 }
 
-// 檢查是否需要重置計數器 (每日 0:00)
+// 檢查是否需要重置計數器 (同步Google API，太平洋時間00:00，對應台灣時間15:00-16:00)
 func (c *CounterService) checkAndReset() {
 	now := time.Now()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	lastResetDay := time.Date(c.lastReset.Year(), c.lastReset.Month(), c.lastReset.Day(), 0, 0, 0, 0, c.lastReset.Location())
 
-	// 如果今天和上次重置不是同一天，就重置計數器
-	if !today.Equal(lastResetDay) {
+	// 獲取太平洋時間
+	var ptLocation *time.Location
+	var err error
+	ptLocation, err = time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		// 如果無法加載時區，使用固定的-8小時偏移（近似值）
+		fmt.Printf("警告: 無法載入太平洋時區: %v，使用固定偏移\n", err)
+		ptLocation = time.FixedZone("PT", -8*60*60)
+	}
+
+	// 轉換為太平洋時間
+	nowPT := now.In(ptLocation)
+
+	// 上次重置時間轉換為太平洋時間
+	lastResetPT := c.lastReset.In(ptLocation)
+
+	// 計算太平洋時間的日期（忽略時間）
+	todayPT := time.Date(nowPT.Year(), nowPT.Month(), nowPT.Day(), 0, 0, 0, 0, ptLocation)
+	lastResetDayPT := time.Date(lastResetPT.Year(), lastResetPT.Month(), lastResetPT.Day(), 0, 0, 0, 0, ptLocation)
+
+	// 如果太平洋時間的今天和上次重置不是同一天，就重置計數器
+	if !todayPT.Equal(lastResetDayPT) {
+		fmt.Printf("重置API計數器: 太平洋時間已跨日 (PT: %s)\n", nowPT.Format("2006-01-02 15:04:05"))
 		c.count = 0
 		c.lastReset = now
 		c.limitExceeded = false // 重置限制標記
@@ -252,7 +271,24 @@ func (c *CounterService) GetTimeUntilReset() time.Duration {
 	defer c.mu.RUnlock()
 
 	now := time.Now()
-	tomorrow := now.AddDate(0, 0, 1)
-	nextMidnight := time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), 0, 0, 0, 0, tomorrow.Location())
-	return time.Until(nextMidnight)
+
+	// 獲取太平洋時間
+	var ptLocation *time.Location
+	var err error
+	ptLocation, err = time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		// 如果無法加載時區，使用固定的-8小時偏移（近似值）
+		ptLocation = time.FixedZone("PT", -8*60*60)
+	}
+
+	// 轉換為太平洋時間
+	nowPT := now.In(ptLocation)
+
+	// 計算太平洋時間的下一個午夜
+	tomorrowPT := time.Date(nowPT.Year(), nowPT.Month(), nowPT.Day(), 0, 0, 0, 0, ptLocation).AddDate(0, 0, 1)
+
+	// 轉換回本地時間
+	tomorrowLocal := tomorrowPT.In(now.Location())
+
+	return time.Until(tomorrowLocal)
 }
