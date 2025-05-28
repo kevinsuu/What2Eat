@@ -21,7 +21,7 @@ func Load() *Config {
 	return &Config{
 		GoogleMapsAPIKey: apiKey,
 		Port:             getEnv("PORT", "8080"),
-		DailyAPILimit:    getEnvInt("DAILY_API_LIMIT", 800),
+		DailyAPILimit:    getEnvInt("DAILY_API_LIMIT", 600),
 	}
 }
 

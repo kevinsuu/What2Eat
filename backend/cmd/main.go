@@ -41,7 +41,7 @@ func main() {
 	restaurantService := service.NewRestaurantService(restaurantRepo, counterService)
 
 	// 初始化 Handler
-	restaurantHandler := handler.NewRestaurantHandler(restaurantService)
+	restaurantHandler := handler.NewRestaurantHandler(restaurantService, counterService)
 
 	// 設定 Gin 路由
 	r := gin.Default()
@@ -85,9 +85,8 @@ func registerRoutes(r *gin.Engine, restaurantHandler *handler.RestaurantHandler)
 	{
 		// API 專用流量限制 (更嚴格)
 		api.Use(middleware.APIRateLimit())
-		// 舊的 POST 方法 (向後兼容)
-		api.POST("/recommend", restaurantHandler.RecommendRestaurants)
-		// 新的 GET 方法 (支援餐廳類型)
+
+		// 只保留 GET 方法
 		api.GET("/restaurants", restaurantHandler.GetRestaurants)
 	}
 }
