@@ -191,7 +191,7 @@ func (c *CounterService) CheckDailyLimit() error {
 
 	if c.limitExceeded || c.count >= c.dailyLimit {
 		c.limitExceeded = true
-		return fmt.Errorf("免費額度已到，暫停相關推薦功能。今日已使用 %d/%d 次", c.count, c.dailyLimit)
+		return fmt.Errorf("免費額度已到，暫停相關推薦功能。", c.count, c.dailyLimit)
 	}
 
 	return nil

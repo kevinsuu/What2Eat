@@ -194,21 +194,32 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                         sx: {
                             borderRadius: 3,
                             width: '100%',
-                            maxWidth: '500px',
-                            mx: 2
+                            maxWidth: '750px',
+                            mx: 2,
+                            overflow: 'hidden'
                         }
                     }}
                 >
-                    <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
+                    <DialogTitle sx={{
+                        textAlign: 'center',
+                        pb: 2.5,
+                        pt: 3.5,
+                        fontSize: '1.7rem',
+                        fontWeight: 600,
+                        color: 'primary.main',
+                        borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
+                    }}>
                         選擇餐廳類型
                     </DialogTitle>
-                    <DialogContent sx={{ pt: 1 }}>
+                    <DialogContent sx={{ pt: 4, pb: 4 }}>
                         <Box
                             sx={{
                                 display: 'flex',
                                 flexWrap: 'wrap',
-                                gap: 1.5,
-                                mt: 0.5,
+                                gap: 3,
+                                mt: 1,
+                                mb: 1,
+                                px: 3,
                                 justifyContent: 'center'
                             }}
                         >
@@ -220,20 +231,31 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                                     color={selectedType === type ? "primary" : "default"}
                                     variant={selectedType === type ? "filled" : "outlined"}
                                     sx={{
-                                        fontWeight: selectedType === type ? 600 : 400,
-                                        transition: 'all 0.2s ease',
-                                        margin: 0.5,
+                                        fontWeight: selectedType === type ? 700 : 500,
+                                        fontSize: '1.4rem',
+                                        height: '64px',
+                                        padding: '12px 8px',
+                                        borderRadius: '32px',
+                                        margin: 1,
+                                        transition: 'all 0.3s ease',
+                                        borderWidth: '2px',
+                                        boxShadow: selectedType === type ? '0 6px 10px rgba(255, 107, 53, 0.25)' : 'none',
                                         '&:hover': {
                                             backgroundColor: selectedType === type
                                                 ? 'primary.main'
-                                                : 'rgba(0, 0, 0, 0.08)'
+                                                : 'rgba(0, 0, 0, 0.08)',
+                                            transform: 'translateY(-4px)',
+                                            boxShadow: '0 8px 15px rgba(0, 0, 0, 0.15)'
+                                        },
+                                        '& .MuiChip-label': {
+                                            padding: '0 24px'
                                         }
                                     }}
                                 />
                             ))}
                         </Box>
                     </DialogContent>
-                    <DialogActions sx={{ px: 3, pb: 3, justifyContent: 'center' }}>
+                    <DialogActions sx={{ px: 5, pb: 5, pt: 3, justifyContent: 'center', gap: 4 }}>
                         <Button
                             onClick={handleCloseTypeDialog}
                             variant="outlined"
