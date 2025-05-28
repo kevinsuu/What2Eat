@@ -344,6 +344,7 @@ func getMainKeyword(restaurantType string) string {
 		"火鍋":   "火鍋 OR 鍋",
 		"甜點":   "甜點 OR 蛋糕",
 		"咖啡廳":  "咖啡廳 OR 咖啡",
+		"自助餐廳": "自助餐 OR buffet",
 	}
 
 	if keyword, exists := mainKeywords[restaurantType]; exists {
@@ -368,6 +369,7 @@ func getNameKeywords(restaurantType string) []string {
 		"火鍋":   {"麻辣鍋", "涮涮鍋", "石頭鍋", "小火鍋", "鴛鴦鍋", "羊肉爐", "薑母鴨", "沙茶鍋", "海鮮鍋", "泡菜鍋"},
 		"甜點":   {"蛋糕", "甜點店", "冰淇淋", "巧克力", "糕點", "烘焙", "馬卡龍", "塔", "派", "奶酪"},
 		"咖啡廳":  {"咖啡", "coffee", "cafe", "下午茶", "拿鐵", "咖啡店", "espresso", "卡布奇諾", "蛋糕", "甜點"},
+		"自助餐廳": {"buffet", "吃到飽", "自助餐", "Buffet", "百匯", "饗食", "自助式", "吃到飽餐廳", "自助吧", "自助餐檯"},
 	}
 
 	if keywords, exists := nameKeywordMap[restaurantType]; exists {
