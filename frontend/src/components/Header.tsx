@@ -171,16 +171,14 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                             background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
                             '&:hover': {
                                 background: 'linear-gradient(45deg, #e85a2a 30%, #ff6b35 90%)',
-                                transform: 'translateY(-2px)',
                             }
                         }}
                     >
                         {loading ? '搜尋中...' : '推薦餐廳'}
                     </Button>
                 </Box>
-
                 {location && (
-                    <Box mt={1} display="flex" alignItems="center" justifyContent="center">
+                    <Box mt={2.5} display="flex" alignItems="center" justifyContent="center">
                         <LocationOn color="primary" fontSize="small" />
                         <Typography variant="body2" color="text.secondary" ml={0.5}>
                             已定位到您的位置

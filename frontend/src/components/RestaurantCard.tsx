@@ -9,7 +9,7 @@ import {
     Paper,
     Chip,
 } from '@mui/material';
-import { LocationOn, OpenInNew, NoPhotography, Star, AttachMoney, LocalDining } from '@mui/icons-material';
+import { LocationOn, OpenInNew, NoPhotography, Star, AttachMoney, LocalDining, Home } from '@mui/icons-material';
 import type { Restaurant as RestaurantType } from '../types';
 
 interface RestaurantCardProps {
@@ -190,26 +190,32 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 py: { xs: 1.5, md: 1.5 },
                 px: { xs: 2, md: 2 },
             }}>
-                <Box display="flex" alignItems="center" mb={1}>
-                    <Typography
-                        variant="h6"
-                        component="h3"
-                        noWrap
-                        sx={{
-                            fontWeight: 600,
-                            fontSize: '1rem',
-                            color: '#333',
-                            flex: 1,
-                        }}
-                    >
-                        {restaurant.name}
-                    </Typography>
-                    {renderPriceLevel(restaurant.price_level)}
-                </Box>
+                {/* 餐廳名稱 */}
+                <Typography
+                    variant="h6"
+                    component="h3"
+                    noWrap
+                    sx={{
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        color: '#333',
+                        mb: 0.5
+                    }}
+                >
+                    {restaurant.name}
+                </Typography>
 
-                {/* 餐廳類型標籤 */}
-                {restaurant.restaurant_type && (
-                    <Box mb={1.5}>
+                {/* 價格等級和餐廳類型並排顯示 */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        mb: 1.5
+                    }}
+                >
+                    {/* 左側餐廳類型 */}
+                    {restaurant.restaurant_type && (
                         <Chip
                             icon={<LocalDining sx={{ fontSize: '0.8rem' }} />}
                             label={restaurant.restaurant_type}
@@ -226,64 +232,107 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                                 }
                             }}
                         />
-                    </Box>
-                )}
+                    )}
 
-                {/* 信息區塊 */}
+                    {/* 右側價格等級 */}
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {renderPriceLevel(restaurant.price_level)}
+                    </Box>
+                </Box>
+
+                {/* 距離與地址信息 */}
                 <Box
                     sx={{
-                        background: 'rgba(0, 0, 0, 0.02)',
-                        borderRadius: 2,
-                        py: 1,
-                        px: 1.2,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 0.8,
+                        width: '100%',
+                        mb: 2,
+                        mt: 1.5,
+                        gap: 1.5
                     }}
                 >
                     {/* 距離信息 */}
-                    <Box display="flex" alignItems="flex-start">
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            pb: 1.5,
+                            borderBottom: '1px solid rgba(0,0,0,0.06)'
+                        }}
+                    >
                         <LocationOn
-                            fontSize="small"
                             color="primary"
-                            sx={{ mr: 0.8, fontSize: '1rem', mt: 0.1 }}
-                        />
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                            <Typography
-                                variant="body2"
-                                color="text.primary"
-                                sx={{ fontWeight: 600, fontSize: '0.85rem', color: '#444' }}
-                            >
-                                距離 {restaurant.distance}
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{
-                                    fontSize: '0.75rem',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 1,
-                                    WebkitBoxOrient: 'vertical',
-                                    color: '#666',
-                                }}
-                            >
-                                {restaurant.address}
-                            </Typography>
-                        </Box>
-                    </Box>
-
-                    {/* 平均消費信息 */}
-                    <Box display="flex" alignItems="flex-start">
-                        <AttachMoney
-                            color="primary"
-                            sx={{ mr: 0.8, fontSize: '1rem', mt: 0.1 }}
+                            sx={{
+                                fontSize: '1rem',
+                                mr: 1,
+                                flexShrink: 0
+                            }}
                         />
                         <Typography
                             variant="body2"
-                            color="text.primary"
-                            sx={{ fontWeight: 600, fontSize: '0.85rem', color: '#444' }}
+                            sx={{
+                                fontWeight: 600,
+                                fontSize: '0.85rem',
+                                color: '#444'
+                            }}
+                        >
+                            距離 {restaurant.distance}
+                        </Typography>
+                    </Box>
+
+                    {/* 地址信息 */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            pb: 1.5,
+                            borderBottom: '1px solid rgba(0,0,0,0.06)'
+                        }}
+                    >
+                        <Home
+                            color="primary"
+                            sx={{
+                                fontSize: '1rem',
+                                mr: 1,
+                                flexShrink: 0,
+                                mt: 0.2
+                            }}
+                        />
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                fontWeight: 600,
+                                fontSize: '0.85rem',
+                                color: '#444',
+                                lineHeight: 1.4
+                            }}
+                        >
+                            {restaurant.address}
+                        </Typography>
+                    </Box>
+
+                    {/* 平均消費信息 */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <AttachMoney
+                            color="primary"
+                            sx={{
+                                fontSize: '1rem',
+                                mr: 1,
+                                flexShrink: 0
+                            }}
+                        />
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                fontWeight: 600,
+                                fontSize: '0.85rem',
+                                color: '#444'
+                            }}
                         >
                             {restaurant.average_price}
                         </Typography>
@@ -293,7 +342,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 {/* 按鈕區，強制在底部 */}
                 <Box sx={{
                     mt: 'auto',
-                    pt: 1.5,
                     marginTop: 'auto'
                 }}>
                     <Button

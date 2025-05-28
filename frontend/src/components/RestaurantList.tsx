@@ -12,11 +12,11 @@ const RestaurantList = ({ restaurants }: RestaurantListProps) => {
 
     return (
         <Fade in={restaurants.length > 0} timeout={800}>
-            <Box sx={{ mb: { xs: 6, md: 4 } }}>
+            <Box sx={{ mb: { xs: 2, md: 1 } }}>
                 <Paper
                     sx={{
-                        p: { xs: 3, md: 1.5 },
-                        mb: { xs: 3, md: 2 },
+                        p: { xs: 1.5, md: 1 },
+                        mb: { xs: 2, md: 1 },
                         textAlign: 'center',
                         borderRadius: 3,
                         display: 'flex',
@@ -52,8 +52,8 @@ const RestaurantList = ({ restaurants }: RestaurantListProps) => {
                         display: 'flex',
                         flexDirection: { xs: 'column', md: 'row' },
                         justifyContent: 'space-between',
-                        gap: { xs: 3, md: 3 },
-                        mt: 3
+                        gap: { xs: 2, md: 2 },
+                        mt: 1.5
                     }}
                 >
                     {restaurants.map((restaurant, index) => (

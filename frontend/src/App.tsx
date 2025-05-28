@@ -235,28 +235,31 @@ function App() {
       <Box
         sx={{
           width: '100%',
-          minHeight: '100vh',
+          height: '100vh',  // 固定高度為視窗高度
           display: 'flex',
           flexDirection: 'column',
           background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+          overflow: 'hidden'  // 避免出現滾動條
         }}
       >
         {/* 主要內容區域 */}
         <Box
           sx={{
-            flex: '1 0 auto',
-            pt: { xs: 4, md: 2 }, // 原始的頂部間距
-            pb: { xs: 4, md: 1 }, // 原始的底部間距
+            flex: '1 1 auto',  // 設為1讓它可以縮小
+            pt: { xs: 2, md: 1 },  // 減少頂部間距
+            pb: { xs: 2, md: 0.5 },  // 減少底部間距
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            overflow: 'auto',  // 允許內容區域滾動
+            minHeight: 0  // 允許縮小到視窗範圍內
           }}
         >
           <Container
             maxWidth={restaurants.length > 0 ? "xl" : "lg"}
             sx={{
               width: '100%',
-              px: { xs: 2, sm: 3, md: 4 },
+              px: { xs: 2, sm: 2, md: 3 },
               display: 'flex',
               flexDirection: 'column',
             }}
@@ -296,14 +299,15 @@ function App() {
           </Container>
         </Box>
 
-        {/* 頁腳區域 - 更加緊湊的設計 */}
+        {/* 頁腳區域 - 固定在底部 */}
         <Box
           sx={{
             flexShrink: 0,
             width: '100%',
-            mt: { xs: 2, md: 0 }, // 減少頂部間距
-            position: { xs: 'relative', md: 'sticky' }, // 在電腦版採用固定定位
+            mt: 'auto',  // 自動把它推到底部
+            position: 'relative',
             bottom: 0,
+            zIndex: 10,
           }}
         >
           <Footer onOpenDonate={() => setShowDonateDialog(true)} />
