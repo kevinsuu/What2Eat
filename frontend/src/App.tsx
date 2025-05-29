@@ -78,6 +78,7 @@ function App() {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [clickCount, setClickCount] = useState(0);
   const [showDonateDialog, setShowDonateDialog] = useState(false);
+  const [hasEverRecommended, setHasEverRecommended] = useState(false);
 
   // 保持 Render 服務活躍的健康檢查
   useEffect(() => {
@@ -205,6 +206,7 @@ function App() {
     setLoading(true);
     setError(null);
     setRestaurants([]);
+    setHasEverRecommended(true);
 
     try {
       // 獲取位置
@@ -252,7 +254,8 @@ function App() {
             flexDirection: 'column',
             alignItems: 'center',
             overflow: 'auto',  // 允許內容區域滾動
-            minHeight: 0  // 允許縮小到視窗範圍內
+            minHeight: 0,  // 允許縮小到視窗範圍內
+            justifyContent: hasEverRecommended || restaurants.length > 0 ? 'flex-start' : 'center'  // 只有第一次訪問且沒有餐廳時才置中
           }}
         >
           <Container
@@ -262,13 +265,17 @@ function App() {
               px: { xs: 2, sm: 2, md: 3 },
               display: 'flex',
               flexDirection: 'column',
+              justifyContent: hasEverRecommended || restaurants.length > 0 ? 'flex-start' : 'center',
+              alignItems: 'center',
+              height: hasEverRecommended || restaurants.length > 0 ? 'auto' : '100%',
+              mt: hasEverRecommended || restaurants.length > 0 ? 0 : -5  // 只有第一次訪問且沒有餐廳時才偏移
             }}
           >
             <Header
               loading={loading}
               location={location}
               onRecommend={handleRecommend}
-              hasRestaurants={restaurants.length > 0}
+              hasRestaurants={hasEverRecommended || restaurants.length > 0}
             />
 
             {error && (

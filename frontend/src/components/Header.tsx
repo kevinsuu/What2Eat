@@ -39,7 +39,7 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                 elevation={2}
                 sx={{
                     borderRadius: 3,
-                    py: { xs: 2, md: hasRestaurants ? 1.5 : 2 },
+                    py: { xs: 2, md: hasRestaurants ? 1.5 : 3 },
                     px: { xs: 2, md: hasRestaurants ? 2 : 3 },
                     mb: { xs: 2, md: hasRestaurants ? 2 : 1.5 },
                     textAlign: 'center',
@@ -56,7 +56,7 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
             >
                 <Box
                     sx={{
-                        mb: { xs: 1.5, md: hasRestaurants ? 0.5 : 1 },
+                        mb: { xs: 1.5, md: hasRestaurants ? 0.5 : 2 },
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center'
@@ -66,9 +66,9 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            mb: hasRestaurants ? 0 : 0.5,
+                            mb: hasRestaurants ? 0 : 1,
                             '& svg': {
-                                fontSize: hasRestaurants ? '1.3rem' : '1.8rem',
+                                fontSize: hasRestaurants ? '1.3rem' : '2.2rem',
                                 color: 'primary.main',
                                 mr: 0.5
                             }
@@ -82,7 +82,7 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                             sx={{
                                 fontSize: {
                                     xs: '2rem',
-                                    md: hasRestaurants ? '1.8rem' : '2.2rem'
+                                    md: hasRestaurants ? '1.8rem' : '2.6rem'
                                 },
                                 background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
                                 WebkitBackgroundClip: 'text',
@@ -99,15 +99,15 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                 <Typography
                     variant="h6"
                     color="text.secondary"
-                    mb={1}
+                    mb={hasRestaurants ? 1 : 2}
                     sx={{
-                        fontSize: '0.9rem',
+                        fontSize: hasRestaurants ? '0.9rem' : '1.1rem',
                         px: 1,
                         maxWidth: '600px',
                         mx: 'auto',
                         lineHeight: 1.3,
                         opacity: hasRestaurants ? 0.8 : 1,
-                        height: '22px'
+                        height: 'auto'
                     }}
                 >
                     {hasRestaurants ? '推薦完成！選擇其他類型再試試看？' : '不知道要吃什麼？讓我們為你推薦附近的優質餐廳！'}
@@ -116,26 +116,30 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                 <Box sx={{
                     display: 'flex',
                     flexDirection: { xs: 'column', sm: 'row' },
-                    gap: 1.5,
+                    gap: hasRestaurants ? 1.5 : 2.5,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    mb: 1
+                    mb: hasRestaurants ? 1 : 2,
+                    mt: hasRestaurants ? 0 : 1
                 }}>
                     <Button
                         variant="outlined"
                         onClick={handleOpenTypeDialog}
-                        startIcon={<FilterAlt />}
+                        startIcon={<FilterAlt sx={{ fontSize: hasRestaurants ? 'inherit' : '1.3rem' }} />}
                         disabled={loading}
                         sx={{
                             borderRadius: 3,
-                            py: 1,
-                            px: 2,
+                            py: hasRestaurants ? 1 : 1.5,
+                            px: hasRestaurants ? 2 : 3,
                             borderColor: selectedType ? 'primary.main' : 'grey.300',
                             color: selectedType ? 'primary.main' : 'text.secondary',
                             backgroundColor: selectedType ? 'rgba(255, 107, 53, 0.05)' : 'transparent',
+                            fontSize: hasRestaurants ? 'inherit' : '1.1rem',
+                            borderWidth: hasRestaurants ? 1 : 1.5,
                             '&:hover': {
                                 backgroundColor: selectedType ? 'rgba(255, 107, 53, 0.1)' : 'rgba(0, 0, 0, 0.04)',
                                 borderColor: selectedType ? 'primary.main' : 'grey.400',
+                                transform: hasRestaurants ? 'none' : 'translateY(-2px)',
                             }
                         }}
                     >
@@ -147,30 +151,36 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                         size={hasRestaurants ? "medium" : "large"}
                         onClick={handleRecommend}
                         disabled={loading}
-                        startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Restaurant />}
+                        startIcon={loading ?
+                            <CircularProgress size={hasRestaurants ? 20 : 24} color="inherit" /> :
+                            <Restaurant sx={{ fontSize: hasRestaurants ? 'inherit' : '1.3rem' }} />
+                        }
                         sx={{
                             py: {
-                                xs: 1.5,
-                                md: hasRestaurants ? 1 : 1.5
+                                xs: hasRestaurants ? 1.5 : 2,
+                                md: hasRestaurants ? 1 : 1.8
                             },
                             px: {
-                                xs: 4,
-                                md: hasRestaurants ? 3 : 4
+                                xs: hasRestaurants ? 4 : 5,
+                                md: hasRestaurants ? 3 : 5
                             },
                             fontSize: {
-                                xs: '1.05rem',
-                                md: hasRestaurants ? '0.9rem' : '1rem'
+                                xs: hasRestaurants ? '1.05rem' : '1.2rem',
+                                md: hasRestaurants ? '0.9rem' : '1.2rem'
                             },
                             borderRadius: 3,
                             width: { xs: '100%', sm: 'auto' },
                             minWidth: {
                                 xs: '100%',
-                                sm: hasRestaurants ? '150px' : '200px'
+                                sm: hasRestaurants ? '150px' : '220px'
                             },
                             transition: 'all 0.3s ease',
                             background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
+                            boxShadow: hasRestaurants ? 'none' : '0 6px 15px rgba(255, 107, 53, 0.25)',
                             '&:hover': {
                                 background: 'linear-gradient(45deg, #e85a2a 30%, #ff6b35 90%)',
+                                boxShadow: hasRestaurants ? 'none' : '0 8px 20px rgba(255, 107, 53, 0.3)',
+                                transform: hasRestaurants ? 'none' : 'translateY(-3px)'
                             }
                         }}
                     >
@@ -255,15 +265,15 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                             ))}
                         </Box>
                     </DialogContent>
-                    <DialogActions sx={{ px: 5, pb: 5, pt: 3, justifyContent: 'center', gap: 4 }}>
+                    <DialogActions sx={{ px: 4, pb: 4, pt: 2, justifyContent: 'center', gap: 3 }}>
                         <Button
                             onClick={handleCloseTypeDialog}
                             variant="outlined"
                             sx={{
-                                borderRadius: 8,
-                                px: 6,
-                                py: 2,
-                                fontSize: '1.2rem',
+                                borderRadius: 6,
+                                px: 4,
+                                py: 1.5,
+                                fontSize: '1rem',
                                 fontWeight: 500,
                                 borderColor: 'rgba(0, 0, 0, 0.15)',
                                 color: 'text.secondary',
@@ -283,17 +293,17 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                             variant="contained"
                             color="primary"
                             sx={{
-                                borderRadius: 8,
-                                px: 6,
-                                py: 2,
-                                fontSize: '1.2rem',
+                                borderRadius: 6,
+                                px: 4,
+                                py: 1.5,
+                                fontSize: '1rem',
                                 fontWeight: 600,
                                 bgcolor: 'primary.main',
                                 background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
-                                boxShadow: '0 6px 12px rgba(255, 107, 53, 0.25)',
+                                boxShadow: '0 4px 10px rgba(255, 107, 53, 0.2)',
                                 '&:hover': {
                                     background: 'linear-gradient(45deg, #e85a2a 30%, #ff6b35 90%)',
-                                    boxShadow: '0 8px 20px rgba(255, 107, 53, 0.35)',
+                                    boxShadow: '0 6px 15px rgba(255, 107, 53, 0.3)',
                                 }
                             }}
                         >
