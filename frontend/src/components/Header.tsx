@@ -212,24 +212,27 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                 >
                     <DialogTitle sx={{
                         textAlign: 'center',
-                        pb: 2.5,
-                        pt: 3.5,
-                        fontSize: '1.7rem',
+                        pb: { xs: 2, md: 2.5 },
+                        pt: { xs: 2.5, md: 3.5 },
+                        fontSize: { xs: '1.5rem', md: '1.7rem' },
                         fontWeight: 600,
                         color: 'primary.main',
                         borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
                     }}>
                         選擇餐廳類型
                     </DialogTitle>
-                    <DialogContent sx={{ pt: 4, pb: 4 }}>
+                    <DialogContent sx={{
+                        pt: { xs: 2, md: 4 },
+                        pb: { xs: 2, md: 4 }
+                    }}>
                         <Box
                             sx={{
                                 display: 'flex',
                                 flexWrap: 'wrap',
-                                gap: 3,
+                                gap: { xs: 1.5, sm: 2, md: 3 },
                                 mt: 1,
                                 mb: 1,
-                                px: 3,
+                                px: { xs: 1, sm: 2, md: 3 },
                                 justifyContent: 'center'
                             }}
                         >
@@ -242,14 +245,39 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                                     variant={selectedType === type ? "filled" : "outlined"}
                                     sx={{
                                         fontWeight: selectedType === type ? 700 : 500,
-                                        fontSize: '1.4rem',
-                                        height: '64px',
-                                        padding: '12px 8px',
-                                        borderRadius: '32px',
-                                        margin: 1,
+                                        fontSize: {
+                                            xs: '1rem',
+                                            sm: '1.2rem',
+                                            md: '1.4rem'
+                                        },
+                                        height: {
+                                            xs: '44px',
+                                            sm: '54px',
+                                            md: '64px'
+                                        },
+                                        padding: {
+                                            xs: '8px 4px',
+                                            sm: '10px 6px',
+                                            md: '12px 8px'
+                                        },
+                                        borderRadius: {
+                                            xs: '22px',
+                                            sm: '27px',
+                                            md: '32px'
+                                        },
+                                        margin: {
+                                            xs: 0.5,
+                                            sm: 0.75,
+                                            md: 1
+                                        },
                                         transition: 'all 0.3s ease',
-                                        borderWidth: '2px',
-                                        boxShadow: selectedType === type ? '0 6px 10px rgba(255, 107, 53, 0.25)' : 'none',
+                                        borderWidth: {
+                                            xs: '1px',
+                                            md: '2px'
+                                        },
+                                        boxShadow: selectedType === type ?
+                                            '0 6px 10px rgba(255, 107, 53, 0.25)' :
+                                            'none',
                                         '&:hover': {
                                             backgroundColor: selectedType === type
                                                 ? 'primary.main'
@@ -258,22 +286,32 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                                             boxShadow: '0 8px 15px rgba(0, 0, 0, 0.15)'
                                         },
                                         '& .MuiChip-label': {
-                                            padding: '0 24px'
+                                            padding: {
+                                                xs: '0 12px',
+                                                sm: '0 18px',
+                                                md: '0 24px'
+                                            }
                                         }
                                     }}
                                 />
                             ))}
                         </Box>
                     </DialogContent>
-                    <DialogActions sx={{ px: 4, pb: 4, pt: 2, justifyContent: 'center', gap: 3 }}>
+                    <DialogActions sx={{
+                        px: { xs: 2, sm: 3, md: 4 },
+                        pb: { xs: 2, sm: 3, md: 4 },
+                        pt: { xs: 1, md: 2 },
+                        justifyContent: 'center',
+                        gap: { xs: 2, md: 3 }
+                    }}>
                         <Button
                             onClick={handleCloseTypeDialog}
                             variant="outlined"
                             sx={{
                                 borderRadius: 6,
-                                px: 4,
-                                py: 1.5,
-                                fontSize: '1rem',
+                                px: { xs: 3, md: 4 },
+                                py: { xs: 1, md: 1.5 },
+                                fontSize: { xs: '0.9rem', md: '1rem' },
                                 fontWeight: 500,
                                 borderColor: 'rgba(0, 0, 0, 0.15)',
                                 color: 'text.secondary',
@@ -294,9 +332,9 @@ const Header = ({ loading, location, onRecommend, hasRestaurants }: HeaderProps)
                             color="primary"
                             sx={{
                                 borderRadius: 6,
-                                px: 4,
-                                py: 1.5,
-                                fontSize: '1rem',
+                                px: { xs: 3, md: 4 },
+                                py: { xs: 1, md: 1.5 },
+                                fontSize: { xs: '0.9rem', md: '1rem' },
                                 fontWeight: 600,
                                 bgcolor: 'primary.main',
                                 background: 'linear-gradient(45deg, #ff6b35 30%, #ff8c61 90%)',
